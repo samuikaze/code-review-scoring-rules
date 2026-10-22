@@ -1,0 +1,67 @@
+# source: common-cr-scoring-rule.md v0.1 sha256:a3b6cbea9b62f874e3c3e9279480ee11a7b1b6c1b38071e15f94e92c9205877b
+# Scan rules of the common standard (common-cr-scoring-rule.md), referenced by scan= in configs/standards.ini.
+# prepare-diff lists the hits as CANDIDATES only; confirm each against the file before deducting.
+# Format: see references/scan-format.md of the code-review-scoring-standard skill. Fields are TAB-separated.
+
+# File scopes
+@scope	docs	-	\.(md|markdown|rst|adoc)$|(^|/)README[^/]*$
+@scope	ghactions	-	(^|/)\.github/workflows/[^/]+\.ya?ml$|(^|/)action\.ya?ml$
+@scope	ci	-	(^|/)\.github/workflows/[^/]+\.ya?ml$|(^|/)\.gitlab-ci\.ya?ml$|(^|/)\.gitlab/ci/|(^|/)azure-pipelines[^/]*\.ya?ml$|(^|/)\.circleci/|(^|/)Jenkinsfile[^/]*$|(^|/)bitbucket-pipelines\.yml$
+@scope	dockerfile	-	(^|/)(Dockerfile|Containerfile)[^/]*$|\.[Dd]ockerfile$
+@scope	compose	-	(^|/)(docker-)?compose[^/]*\.ya?ml$
+@scope	shell	-	\.(sh|bash|zsh|ksh)$
+@scope	pwsh	-	\.(ps1|psm1)$
+@scope	script	-	\.(sh|bash|zsh|ksh|ps1|psm1)$
+@scope	envtemplate	-	(^|/)\.env\.(example|sample|template|dist|defaults)$
+@scope	envfile	!envtemplate	(^|/)\.env(\.[A-Za-z0-9_-]+)?$
+
+# PR hints
+@pr	CM-F1	has:script,no:docs	scripts added or changed without any documentation change; confirm the usage is documented
+@pr	CM-B1	has:envfile	.env file added or changed; confirm it holds no real secret and should not be in .gitignore instead
+@pr	CM-C1	modified:ci	existing CI configuration changed; confirm no test or check step was removed, skipped or weakened
+
+# A. Correctness
+CM-A2	shell	-	(^|[^A-Za-z0-9_-])(rm|mv|cp)[ \t]+(-[A-Za-z-]+[ \t]+)*\$[A-Za-z_{]	-	-	unquoted variable in a file command; confirm the expansion is quoted
+CM-A3	pwsh	i	\$erroractionpreference[ \t]*=[ \t]*['"]?(silentlycontinue|ignore)	-	-	errors suppressed for the whole script; confirm failures are still detected
+
+# B. Security
+CM-B1	any	i	(password|passwd|pwd|secret|token|api[_-]?key|private[_-]?key|access[_-]?key|client[_-]?secret)[a-z0-9_]*["']?[ \t]*[:=][ \t]*["']?[a-z0-9+/_.=-]{8,}	-	(\$\{|\$\(|\{\{|<[a-z_-]+>|changeme|example|dummy|placeholder|xxx|\*\*\*)	possible hard-coded secret or credential; confirm it is a real value, not a placeholder or a reference
+CM-B1	any	c	-----BEGIN [A-Z ]*PRIVATE KEY-----	-	-	possible hard-coded secret or credential; confirm it is a real value, not a placeholder or a reference
+CM-B1	any	i	[a-z][a-z0-9+.-]*://[^/:@ \t"']+:[^/@ \t"'$]+@	-	(\$\{|<[a-z_-]+>|example|user:pass|username:password)	possible hard-coded secret or credential; confirm it is a real value, not a placeholder or a reference
+CM-B2	ghactions	-	\$\{\{[ \t]*github\.(event\.(issue|pull_request|comment|review|review_comment|discussion|head_commit|commits|pages|workflow_run)|head_ref)	-	(if:[^}]*|[A-Z_][A-Z0-9_]*:[ \t]*)\$\{\{[ \t]*github\.	untrusted GitHub context; confirm it is passed through env: and not inserted into a run command
+CM-B2	ci	-	\$(CI_COMMIT_MESSAGE|CI_COMMIT_TITLE|CI_COMMIT_DESCRIPTION|CI_MERGE_REQUEST_TITLE|CI_MERGE_REQUEST_DESCRIPTION|CI_COMMIT_BRANCH|CI_COMMIT_REF_NAME)	-	-	user-controlled CI variable; confirm it is quoted and never evaluated as a command
+CM-B3	ghactions	-	uses:[ \t]*["']?[A-Za-z0-9_.-]+/[^@ \t"']+@[^ \t"'#]+	-	@[0-9a-f]{40}	action not pinned to a full commit SHA; confirm the reference and whether the step gets secrets or write access
+CM-B4	ghactions	-	pull_request_target	-	-	broad CI trigger or permissions; confirm untrusted PR code cannot run with secrets or write access
+CM-B4	ghactions	-	permissions:[ \t]*write-all	-	-	broad CI trigger or permissions; confirm untrusted PR code cannot run with secrets or write access
+CM-B5	compose	-	privileged:[ \t]*true	-	-	container may run as root or privileged; confirm the final stage runs as a non-root user
+CM-B5	dockerfile	i	^[ \t]*user[ \t]+(root|0)([ \t:]|$)	-	-	container may run as root or privileged; confirm the final stage runs as a non-root user
+CM-B6	dockerfile	i	^[ \t]*(env|arg)[ \t]+[a-z0-9_]*(password|passwd|secret|token|api_?key|private_?key|credential)	-	-	secret may end up in the image, its history or a log; confirm how it is passed
+CM-B6	ci	i	(echo|write-host|write-output|printf)[ \t].*\$\{\{[ \t]*secrets\.	-	-	secret may end up in the image, its history or a log; confirm how it is passed
+CM-B7	script	i	(curl|wget)[^|]*\|[ \t]*(sudo[ \t]+)?(ba|z)?sh([ \t]|$)	-	-	downloaded script piped to a shell; confirm the source is trusted and the download is verified
+CM-B7	dockerfile	i	(curl|wget)[^|]*\|[ \t]*(sudo[ \t]+)?(ba|z)?sh([ \t]|$)	-	-	downloaded script piped to a shell; confirm the source is trusted and the download is verified
+CM-B7	ci	i	(curl|wget)[^|]*\|[ \t]*(sudo[ \t]+)?(ba|z)?sh([ \t]|$)	-	-	downloaded script piped to a shell; confirm the source is trusted and the download is verified
+CM-B7	any	i	(iex|invoke-expression)[ \t]*\(?[ \t]*\(?[ \t]*(iwr|irm|invoke-webrequest|invoke-restmethod|new-object[ \t]+(system\.)?net\.webclient)	-	-	downloaded script piped to a shell; confirm the source is trusted and the download is verified
+CM-B8	shell	-	(^|[^A-Za-z0-9_-])eval[ \t]	-	-	eval or Invoke-Expression; confirm the string has no external or user input
+CM-B8	pwsh	i	(^|[^a-z0-9_-])(iex|invoke-expression)([ \t]|$)	-	-	eval or Invoke-Expression; confirm the string has no external or user input
+
+# C. Test quality
+CM-C1	ci	i	continue-on-error:[ \t]*true	-	-	test or check step skipped or forced to pass; confirm the reason is documented
+CM-C1	ci	i	(test|lint|check|verify|scan)[^#]*\|\|[ \t]*(true|exit[ \t]+0|:)[ \t]*$	-	-	test or check step skipped or forced to pass; confirm the reason is documented
+CM-C1	ci	i	(-dskiptests|-dmaven\.test\.skip|-x[ \t]+test|--no-verify|--skip-tests)	-	-	test or check step skipped or forced to pass; confirm the reason is documented
+
+# E. Performance and resource use
+CM-E1	dockerfile	i	^[ \t]*copy[ \t]+(--[a-z]+=[^ \t]+[ \t]+)*\.[ \t]+	-	-	whole build context copied; confirm dependencies are installed before it so the layer cache works
+CM-E2	dockerfile	i	apt-get[ \t]+(-[a-z-]+[ \t]+)*install	-	--no-install-recommends	package install keeps caches or extras; confirm --no-install-recommends / --no-cache and cleanup in the same layer
+CM-E2	dockerfile	i	apk[ \t]+add	-	--no-cache	package install keeps caches or extras; confirm --no-install-recommends / --no-cache and cleanup in the same layer
+
+# F. Readability
+CM-F2	docs	-	\]\([ \t]*\)	-	-	empty link target
+CM-F4	pwsh	i	(^[ \t]*|\|[ \t]*)(ls|dir|cat|gc|gci|gcm|%|\?|select|where|foreach|sort|ft|fl|iwr|irm)([ \t]|$)	-	-	alias in a script; confirm the full cmdlet name is used
+
+# G. Maintainability
+CM-G1	dockerfile	i	^[ \t]*from[ \t]+(--platform=[^ \t]+[ \t]+)?[^ \t:@$]+(:latest)?([ \t]|$)	-	from[ \t]+scratch	version not pinned; confirm it is pinned (a FROM may name an earlier build stage)
+CM-G1	compose	-	image:[ \t]*["']?[^ \t:@"'$]+(:latest)?["']?[ \t]*$	-	-	version not pinned; confirm it is pinned (a FROM may name an earlier build stage)
+CM-G1	dockerfile	i	pip3?[ \t]+install[ \t]	-	(==|-r[ \t]|--requirement|-e[ \t]|--upgrade[ \t]+pip|\.whl)	version not pinned; confirm it is pinned (a FROM may name an earlier build stage)
+CM-G1	script	i	(npm[ \t]+(install|i)[ \t]+-g|pip3?[ \t]+install)[ \t]+[a-z@]	-	(==|@[0-9]|-r[ \t]|--requirement)	version not pinned; confirm it is pinned (a FROM may name an earlier build stage)
+CM-G2	dockerfile	i	^[ \t]*add[ \t]	-	-	Dockerfile convention; confirm COPY is enough for ADD, and CMD/ENTRYPOINT use the exec form
+CM-G2	dockerfile	i	^[ \t]*(cmd|entrypoint)[ \t]+[a-z0-9/.$]	-	-	Dockerfile convention; confirm COPY is enough for ADD, and CMD/ENTRYPOINT use the exec form
