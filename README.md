@@ -3,48 +3,59 @@
 <!-- markdownlint-disable MD028 -->
 <!-- markdownlint-disable MD033 -->
 
-[code-review-scoring](https://github.com/samuikaze/code-review-scoring)
-使用的 PR Code Review 評分標準文件庫。
+English | [繁體中文](docs/zh-tw/README.md)
 
-評分標準與評分流程分開存放：評分流程只透過 `configs/standards.ini`
-讀取本儲存庫的標準文件與掃描規則檔，標準的更新不需要修改評分流程。
+A repository of PR code review scoring standards used by
+[code-review-scoring](https://github.com/samuikaze/code-review-scoring).
 
-## 目錄結構
+The scoring standards are kept separate from the scoring workflow: the workflow
+reads the standard documents and scan rule files in this repository only through
+`configs/standards.ini`, so updating a standard requires no change to the
+workflow itself.
+
+## Directory Structure
 
 ```text
 code-review-scoring-rules/
   common-rule/
-    common-cr-scoring-rule.md          通用標準文件
-    common-cr-scoring-rule.tsv         通用標準的掃描規則
+    common-cr-scoring-rule.md          Common standard document
+    common-cr-scoring-rule.tsv         Scan rules for the common standard
   springboot3-rule/
-    springboot-3-cr-scoring-rule.md    Spring Boot 3 標準文件
-    springboot-3-cr-scoring-rule.tsv   Spring Boot 3 的掃描規則
+    springboot-3-cr-scoring-rule.md    Spring Boot 3 standard document
+    springboot-3-cr-scoring-rule.tsv   Scan rules for Spring Boot 3
+  docs/
+    zh-tw/README.md                    Traditional Chinese README
 ```
 
-## 評分標準一覽
+## Available Standards
 
-| 標準代號 | 類型 | 適用範圍 | 文件 |
+| Standard | Type | Applies to | Document |
 | --- | --- | --- | --- |
-| `common` | 通用標準（`role="common"`） | 不屬於任何框架標準的檔案，例如 README、CI／CD 設定、Dockerfile、腳本、JSON／YAML 設定 | [common-cr-scoring-rule.md](common-rule/common-cr-scoring-rule.md) |
-| `springboot-3` | 框架標準 | Java／Spring Boot 3 專案 | [springboot-3-cr-scoring-rule.md](springboot3-rule/springboot-3-cr-scoring-rule.md) |
+| `common` | Common standard (`role="common"`) | Files not covered by any framework standard, such as READMEs, CI/CD configs, Dockerfiles, scripts and JSON/YAML configs | [common-cr-scoring-rule.md](common-rule/common-cr-scoring-rule.md) |
+| `springboot-3` | Framework standard | Java/Spring Boot 3 projects | [springboot-3-cr-scoring-rule.md](springboot3-rule/springboot-3-cr-scoring-rule.md) |
 
-每套標準由兩個檔案組成：
+Each standard consists of two files:
 
-- **標準文件**（`.md`）：定義面向、檢查項、事先確認事項等內容，
-  前置資料的 `name` 為標準代號，`version` 為標準版本，版本會記錄在評分報告中。
-- **掃描規則檔**（`.tsv`）：以正規表示式列出候選線索，只作為提示，不會直接扣分。
+- **Standard document** (`.md`): defines the aspects, check items, items to
+  confirm in advance and so on. The `name` field in the front matter is the
+  standard ID, and `version` is the standard version, which is recorded in the
+  scoring report.
+- **Scan rule file** (`.tsv`): lists candidate hints found by regular
+  expressions. These are hints only and never deduct points directly.
 
-## 使用方式
+The standard documents themselves are written in Traditional Chinese.
 
-在 code-review-scoring 專案根目錄複製設定檔範本：
+## Usage
+
+In the root of the code-review-scoring project, copy the config template:
 
 ```bash
 cp configs/standards.example.ini configs/standards.ini
 ```
 
-在 `configs/standards.ini` 中為每套標準建立一個區段，
-`path` 與 `scan` 指向本儲存庫的檔案。相對路徑以 `configs/` 為準，
-Windows 請使用斜線：
+Add one section per standard to `configs/standards.ini`, pointing `path` and
+`scan` to the files in this repository. Relative paths are resolved against
+`configs/`. On Windows, use forward slashes:
 
 ```ini
 [springboot-3]
@@ -58,20 +69,26 @@ scan="/path/to/code-review-scoring-rules/common-rule/common-cr-scoring-rule.tsv"
 role="common"
 ```
 
-`standards.ini` 不進版控，換電腦或換人時請各自設定路徑。
-各欄位的完整說明見 code-review-scoring 的 `configs/standards.example.ini`。
+`standards.ini` is not under version control, so set up the paths on each
+machine or for each user. See `configs/standards.example.ini` in
+code-review-scoring for a full description of every field.
 
-## 新增或修改評分標準
+## Adding or Modifying Standards
 
-1. 依 code-review-scoring 的 `docs/templates/scoring-rule-template.md`
-   撰寫標準文件，新標準請建立 `<標準代號>-rule/` 目錄存放。
-2. 「面向」「檢查項」「事先確認事項」三個章節由腳本解析，格式固定；
-   「特例規則」「判斷提示」只給 AI 參考，可以自由撰寫。
-3. 修改標準文件後，請同步更新前置資料的 `version`。
-4. 需要掃描規則檔時，可在 code-review-scoring 中透過
-   `code-review-scoring-standard` Skill 產生或更新，不需手寫正規表示式。
-5. 在 code-review-scoring 專案根目錄執行 lint，確認格式、`applies`
-   是否重疊、配分加總與掃描規則皆正確：
+1. Write the standard document based on
+   `docs/templates/scoring-rule-template.md` in code-review-scoring. Put each
+   new standard in its own `<standard-id>-rule/` directory.
+2. The "aspects", "check items" and "items to confirm in advance" sections are
+   parsed by scripts and must follow the fixed format. The "special rules" and
+   "judgment hints" sections are for AI reference only and can be written
+   freely.
+3. Bump the `version` field in the front matter whenever you modify a standard
+   document.
+4. If a scan rule file is needed, generate or update it with the
+   `code-review-scoring-standard` Skill in code-review-scoring instead of
+   writing regular expressions by hand.
+5. Run lint in the root of the code-review-scoring project to check the format,
+   overlapping `applies` patterns, point totals and scan rules:
 
    ```bash
    bash skills/code-review-scoring/scripts/standard.sh lint
@@ -82,10 +99,13 @@ role="common"
      -File skills\code-review-scoring\scripts\standard.ps1 lint
    ```
 
-## 注意事項
+## Notes
 
-- 評分途中不要修改標準。評分流程會在步驟 1 記錄標準的 sha256，
-  之後標準或掃描規則被修改時流程會拒絕繼續。
-- 掃描規則檔第一行記錄來源標準文件的版本與 sha256，
-  標準文件修改後請重新產生或審核掃描規則檔。
-- 標準文件須通過 markdownlint，僅停用 MD028 與 MD033。
+- Do not modify a standard while a scoring run is in progress. The workflow
+  records the sha256 of each standard in step 1 and refuses to continue if the
+  standard or its scan rules change afterwards.
+- The first line of a scan rule file records the version and sha256 of its
+  source standard document. After modifying a standard document, regenerate or
+  review its scan rule file.
+- Standard documents must pass markdownlint, with only MD028 and MD033
+  disabled.
