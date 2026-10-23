@@ -1,5 +1,5 @@
 # Scan rules of the springboot-3 standard (springboot-3-cr-scoring-rule.md), referenced by scan= in rule.ini.
-# source: springboot-3-cr-scoring-rule.md v0.6 sha256:8179813275a2209a7ce96082313e0dd9c272e7f8856030d346e96faa6b3b952c
+# source: springboot-3-cr-scoring-rule.md v0.7 sha256:6d3ab07dd10176a98b61c3a1b9bea4e25f38833c2399f011edce67cdce97ae68
 # prepare-diff lists the hits as CANDIDATES only; confirm each against the code before deducting.
 # Regexes must use the subset shared by POSIX ERE and .NET (no \b, \s, \d, lookaround). Fields are TAB-separated.
 #
