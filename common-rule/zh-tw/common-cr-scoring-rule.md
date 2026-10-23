@@ -1,8 +1,8 @@
 ---
-# 標準代號：只能使用英文小寫、數字與 -，須與 configs/standards.ini 的區段名稱一致
+# 標準代號：只能使用英文小寫、數字與 -，須與規則專案 rules.ini 的區段名稱一致
 name: common
 # 標準版本，會記錄在評分報告中
-version: v0.1
+version: v0.3
 ---
 
 # 通用檔案 PR 品質評分規則
@@ -22,13 +22,13 @@ version: v0.1
 Docker 官方的 Dockerfile 最佳實踐與 hadolint、ShellCheck、PSScriptAnalyzer、
 OWASP Secrets Management Cheat Sheet、The Twelve-Factor App。
 
-本文件透過 `configs/standards.ini` 外掛到 code-review-scoring 的評分流程，
-作為通用標準（`role="common"`）；自動掃描規則在同目錄的 `common-cr-scoring-rule.tsv`：
+本文件由同目錄的 `rule.ini` 設定為 code-review-scoring 的通用規則（`role="common"`），
+並在規則專案的 `rules.ini` 登錄為 `common`；自動掃描規則在同目錄的 `common-cr-scoring-rule.tsv`：
 
 ```ini
-[common]
-path="/path/to/common-cr-scoring-rule.md"
-scan="/path/to/common-cr-scoring-rule.tsv"
+[rule]
+standard="common-cr-scoring-rule.md"
+scan="common-cr-scoring-rule.tsv"
 role="common"
 ```
 
@@ -38,8 +38,8 @@ PR 只異動通用檔案時，以本標準單獨產出一份報告。
 
 ## 面向
 
-所有標準共用以下七個面向。配分預設使用 `configs/settings.ini` 的 `[points]`，
-可在 `configs/standards.ini` 的本標準區段覆寫（只在本標準單獨產出報告時使用）。
+所有標準共用以下七個面向。配分與等級一律使用規則專案 `defaults.ini` 的設定；
+嚴重度分級也使用 `defaults.ini`，可在同目錄的 `rule.ini` 覆寫。
 檢查代碼 `CM-` 之後的第一個字母代表所屬面向。
 
 | 代碼 | 面向 | 衡量重點 |

@@ -1,8 +1,8 @@
 ---
-# 標準代號：只能使用英文小寫、數字與 -，須與 configs/standards.ini 的區段名稱一致
+# 標準代號：只能使用英文小寫、數字與 -，須與規則專案 rules.ini 的區段名稱一致
 name: springboot-3
 # 標準版本，會記錄在評分報告中
-version: v0.5
+version: v0.7
 ---
 
 # Spring Boot 3 PR 程式碼品質評分規則
@@ -12,13 +12,14 @@ version: v0.5
 
 適用於 Java／Spring Boot 3 專案的 PR 程式碼品質評分。
 
-本文件透過 `configs/standards.ini` 外掛到 code-review-scoring 的評分流程，
+本文件由同目錄的 `rule.ini` 設定為 code-review-scoring 的評分規則，
+並在規則專案的 `rules.ini` 登錄為 `springboot-3`；
 自動掃描規則在同目錄的 `springboot-3-cr-scoring-rule.tsv`：
 
 ```ini
-[springboot-3]
-path="/path/to/springboot-3-cr-scoring-rule.md"
-scan="/path/to/springboot-3-cr-scoring-rule.tsv"
+[rule]
+standard="springboot-3-cr-scoring-rule.md"
+scan="springboot-3-cr-scoring-rule.tsv"
 applies="*.java, *.kt, *.sql, *.xml, *.yml, *.yaml, *.properties, *.gradle, *.kts"
 ```
 
@@ -26,8 +27,8 @@ applies="*.java, *.kt, *.sql, *.xml, *.yml, *.yaml, *.properties, *.gradle, *.kt
 
 ## 面向
 
-所有標準共用以下七個面向。配分預設使用 `configs/settings.ini` 的 `[points]`，
-可在 `configs/standards.ini` 的本標準區段覆寫。檢查代碼的第一個字母代表所屬面向。
+所有標準共用以下七個面向。配分、嚴重度分級與等級使用規則專案 `defaults.ini`
+的設定，可在同目錄的 `rule.ini` 覆寫。檢查代碼的第一個字母代表所屬面向。
 
 | 代碼 | 面向 | 衡量重點 |
 | --- | --- | --- |

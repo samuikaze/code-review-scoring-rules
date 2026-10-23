@@ -1,5 +1,5 @@
-# source: common-cr-scoring-rule.md v0.1 sha256:07fd382ceecabdac769c95b6cb098c5ed15a79f9db477199ec4e4d956f8afe34
-# Scan rules of the common standard (common-cr-scoring-rule.md), referenced by scan= in configs/standards.ini.
+# source: common-cr-scoring-rule.md v0.3 sha256:73bae1b2865e663f5b659e4674068eee0cd9920f58c9c5bc9b49f4a1186bebc6
+# Scan rules of the common standard (common-cr-scoring-rule.md), referenced by scan= in rule.ini.
 # prepare-diff lists the hits as CANDIDATES only; confirm each against the file before deducting.
 # Format: see references/scan-format.md of the code-review-scoring-standard skill. Fields are TAB-separated.
 
