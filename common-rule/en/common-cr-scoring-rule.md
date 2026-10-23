@@ -2,7 +2,7 @@
 # Standard ID: lowercase letters, digits and - only; must match the section name in rules.ini of the rules project
 name: common
 # Standard version, recorded in the scoring report
-version: v0.2
+version: v0.3
 ---
 
 # Common File PR Quality Scoring Rules
@@ -26,14 +26,14 @@ official Dockerfile best practices and hadolint, ShellCheck, PSScriptAnalyzer,
 the OWASP Secrets Management Cheat Sheet and The Twelve-Factor App.
 
 This document is set up as the common rule of code-review-scoring
-(`role="common"`) by the `rule.ini` in the parent rule directory, and
-registered as `common` in `rules.ini` of the rules project. The automatic scan
+(`role="common"`) by the `rule.ini` in the same directory, and registered
+as `common` in `rules.ini` of the rules project. The automatic scan
 rules are in `common-cr-scoring-rule.tsv` in the same directory:
 
 ```ini
 [rule]
-standard="en/common-cr-scoring-rule.md"
-scan="en/common-cr-scoring-rule.tsv"
+standard="common-cr-scoring-rule.md"
+scan="common-cr-scoring-rule.tsv"
 role="common"
 ```
 
@@ -48,8 +48,8 @@ covered in this document.
 
 All standards share the following seven dimensions. The points and the grades
 always come from `defaults.ini` of the rules project; the severity scale also
-comes from `defaults.ini` and can be overridden in the `rule.ini` in the parent
-rule directory. The first letter after `CM-` in a check code indicates its
+comes from `defaults.ini` and can be overridden in the `rule.ini` in the same
+directory. The first letter after `CM-` in a check code indicates its
 dimension.
 
 | Code | Dimension | Focus |

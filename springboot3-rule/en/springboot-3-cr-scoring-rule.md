@@ -2,7 +2,7 @@
 # Standard ID: lowercase letters, digits and - only; must match the section name in rules.ini of the rules project
 name: springboot-3
 # Standard version, recorded in the scoring report
-version: v0.6
+version: v0.7
 ---
 
 # Spring Boot 3 PR Code Quality Scoring Rules
@@ -13,14 +13,14 @@ version: v0.6
 For scoring the code quality of PRs in Java/Spring Boot 3 projects.
 
 This document is set up as a scoring rule of code-review-scoring by the
-`rule.ini` in the parent rule directory, and registered as `springboot-3` in
+`rule.ini` in the same directory, and registered as `springboot-3` in
 `rules.ini` of the rules project. The automatic scan rules are in
 `springboot-3-cr-scoring-rule.tsv` in the same directory:
 
 ```ini
 [rule]
-standard="en/springboot-3-cr-scoring-rule.md"
-scan="en/springboot-3-cr-scoring-rule.tsv"
+standard="springboot-3-cr-scoring-rule.md"
+scan="springboot-3-cr-scoring-rule.tsv"
 applies="*.java, *.kt, *.sql, *.xml, *.yml, *.yaml, *.properties, *.gradle, *.kts"
 ```
 
@@ -32,8 +32,8 @@ document.
 
 All standards share the following seven dimensions. The points, the severity
 scale and the grades come from `defaults.ini` of the rules project and can be
-overridden in the `rule.ini` in the parent rule directory. The first letter of
-a check code indicates its dimension.
+overridden in the `rule.ini` in the same directory. The first letter of a check
+code indicates its dimension.
 
 | Code | Dimension | Focus |
 | --- | --- | --- |

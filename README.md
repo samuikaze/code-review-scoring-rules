@@ -15,8 +15,8 @@ Updating a rule requires no change to the workflow itself.
 
 > [!IMPORTANT]
 > Rules do not need versions in several languages. The workflow reads only
-> the standard document and scan rule file that the `rule.ini` of a rule
-> names, and never switches by language. The `zh-tw/` and `en/` folders here
+> the one rule folder `rules.ini` registers for a rule, and never switches by
+> language. The `zh-tw/` and `en/` folders here
 > are only a demonstration; write your own rules in one language. See
 > [Language of rule files](#language-of-rule-files).
 
@@ -27,14 +27,14 @@ code-review-scoring-rules/
   rules.ini                              Registered rules: folder, enable
   defaults.ini                           Default points, scale and grades
   springboot3-rule/
-    rule.ini                             Rule settings: document, scan rules, applies
     zh-tw/
+      rule.ini                           Rule settings: document, scan rules, applies
       springboot-3-cr-scoring-rule.md    Spring Boot 3 standard (Traditional Chinese)
       springboot-3-cr-scoring-rule.tsv   Scan rules for Spring Boot 3
     en/                                  The same rule in English (same files)
   common-rule/
-    rule.ini                             Rule settings: document, scan rules, role
     zh-tw/
+      rule.ini                           Rule settings: document, scan rules, role
       common-cr-scoring-rule.md          Common standard (Traditional Chinese)
       common-cr-scoring-rule.tsv         Scan rules for the common standard
     en/                                  The same rule in English (same files)
@@ -49,10 +49,11 @@ code-review-scoring-rules/
 | `springboot-3` | Framework rule | Java/Spring Boot 3 projects | [springboot-3-cr-scoring-rule.md](springboot3-rule/zh-tw/springboot-3-cr-scoring-rule.md) | [springboot-3-cr-scoring-rule.md](springboot3-rule/en/springboot-3-cr-scoring-rule.md) |
 | `common` | Common rule (`role="common"`) | Files not covered by any framework rule, such as READMEs, CI/CD configs, Dockerfiles, scripts and JSON/YAML configs | [common-cr-scoring-rule.md](common-rule/zh-tw/common-cr-scoring-rule.md) | [common-cr-scoring-rule.md](common-rule/en/common-cr-scoring-rule.md) |
 
-The `rule.ini` of each rule uses the Traditional Chinese files by default.
-Each rule folder holds:
+`rules.ini` registers the Traditional Chinese folders. Each language folder
+of a rule is a rule folder of its own, written in that language, and holds:
 
-- **`rule.ini`**: the rule settings. `[rule]` names the standard document
+- **`rule.ini`**: the rule settings, with comments in the language of its
+  folder. `[rule]` names the standard document
   (`standard`), the scan rule file (`scan`) and the files a framework rule
   applies to (`applies`), or `role="common"` for the common rule; the paths
   are relative to the rule folder. A framework rule may also override the
@@ -71,11 +72,23 @@ Each rule folder holds:
 All settings files are INI files; values are in double quotes, and lines
 starting with `;` or `#` are comments.
 
-- **`rules.ini`**: one section per rule; the section name is the rule name.
-  `path` is the rule folder (the folder of its `rule.ini`, full or relative to
-  this project) and `enable` is `"true"` or `"false"` (both required).
-  Disabled rules are not used for scoring, but lint still checks them. At most
-  one common rule can be enabled.
+- **`rules.ini`**: registers the rules, one section per rule. The section
+  name is the rule name and must equal `name` in the front matter of its
+  standard document. Both keys are required:
+  - `path`: the rule folder (the folder of its `rule.ini`), as a full path or
+    relative to the folder of `rules.ini`. For the rules of this project it
+    also picks the language: `zh-tw` or `en` (see
+    [Language of rule files](#language-of-rule-files)).
+  - `enable`: `"true"` or `"false"`. Disabled rules are not used for scoring,
+    but `standard lint` still checks them. At most one common rule
+    (`role="common"`) can be enabled.
+
+  ```ini
+  [springboot-3]
+  path="springboot3-rule/zh-tw"
+  enable="true"
+  ```
+
 - **`defaults.ini`**: `[scoring]`, `[points]`, `[severity:CODE]` and
   `[grade:CODE]`, used by every rule whose `rule.ini` does not set them. A
   group in `rule.ini` replaces the whole group of `defaults.ini`: any
@@ -98,21 +111,22 @@ show another one.
 
 ## Language of rule files
 
-Rule files do not need i18n. The scoring workflow reads only the standard
-document and scan rule file named by `standard` and `scan` in the `rule.ini`
-of a rule and never switches by language, so write a single rule in whatever
-language you or your team prefer. There is no need to maintain versions in
-several languages.
+Rule files do not need i18n. The scoring workflow reads only the one rule
+folder registered in `rules.ini` and never switches by language, so write a
+single rule in whatever language you or your team prefer. There is no need to
+maintain versions in several languages.
 
 The `zh-tw/` and `en/` folders in this project are two language versions of
 the same rules, with identical check codes, severities and confirmations, to
-show both templates. To switch a rule to English, change `zh-tw/` to `en/` in
-`standard` and `scan` of its `rule.ini`:
+show both templates. Each has its own `rule.ini`, and everything in a folder,
+including the comments of `rule.ini`, is written in the language of the
+folder. To switch a rule to English, change `zh-tw` to `en` in its `path` in
+`rules.ini`:
 
 ```ini
-[rule]
-standard="en/springboot-3-cr-scoring-rule.md"
-scan="en/springboot-3-cr-scoring-rule.tsv"
+[springboot-3]
+path="springboot3-rule/en"
+enable="true"
 ```
 
 When writing rule files in another language, note that:
@@ -146,8 +160,8 @@ When writing rule files in another language, note that:
    root="/path/to/code-review-scoring-rules"
    ```
 
-3. To use the English rules, change `zh-tw/` to `en/` in `standard` and
-   `scan` of the `rule.ini` of each rule (see
+3. To use the English rules, change `zh-tw` to `en` in the `path` of each
+   rule in `rules.ini` (see
    [Language of rule files](#language-of-rule-files)).
 4. Run `standard lint` in the root of code-review-scoring to check the rules
    (see below).

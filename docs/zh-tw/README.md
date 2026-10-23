@@ -13,7 +13,7 @@
 規則的更新不需要修改評分流程。
 
 > [!IMPORTANT]
-> 規則不需要建立多語言版本。評分流程只讀取各規則 `rule.ini` 指定的標準文件與掃描規則檔，
+> 規則不需要建立多語言版本。評分流程只讀取 `rules.ini` 為每套規則登錄的那一個目錄，
 > 不會依語言切換。本專案的 `zh-tw/`、`en/` 目錄只是示範，
 > 自己的規則只要用一種語言撰寫即可，見「規則檔的語言」。
 
@@ -24,14 +24,14 @@ code-review-scoring-rules/
   rules.ini                              規則登錄（各規則的目錄與是否啟用）
   defaults.ini                           預設的面向配分、扣分合併方式、嚴重度分級與等級
   springboot3-rule/
-    rule.ini                             規則設定：標準文件、掃描規則、applies
     zh-tw/
+      rule.ini                           規則設定：標準文件、掃描規則、applies
       springboot-3-cr-scoring-rule.md    Spring Boot 3 標準文件（繁體中文）
       springboot-3-cr-scoring-rule.tsv   Spring Boot 3 的掃描規則
     en/                                  同一套規則的英文版（檔案同上）
   common-rule/
-    rule.ini                             規則設定：標準文件、掃描規則、role="common"
     zh-tw/
+      rule.ini                           規則設定：標準文件、掃描規則、role="common"
       common-cr-scoring-rule.md          通用標準文件（繁體中文）
       common-cr-scoring-rule.tsv         通用標準的掃描規則
     en/                                  同一套規則的英文版（檔案同上）
@@ -46,9 +46,9 @@ code-review-scoring-rules/
 | `springboot-3` | 框架規則 | Java／Spring Boot 3 專案 | [springboot-3-cr-scoring-rule.md](../../springboot3-rule/zh-tw/springboot-3-cr-scoring-rule.md) | [springboot-3-cr-scoring-rule.md](../../springboot3-rule/en/springboot-3-cr-scoring-rule.md) |
 | `common` | 通用規則（`role="common"`） | 不屬於任何框架規則的檔案，例如 README、CI／CD 設定、Dockerfile、腳本、JSON／YAML 設定 | [common-cr-scoring-rule.md](../../common-rule/zh-tw/common-cr-scoring-rule.md) | [common-cr-scoring-rule.md](../../common-rule/en/common-cr-scoring-rule.md) |
 
-各規則的 `rule.ini` 預設使用繁體中文版的檔案。每個規則目錄包含：
+`rules.ini` 預設登錄繁體中文版的目錄。規則的每個語言目錄都是獨立的規則目錄，以該語言撰寫，包含：
 
-- **`rule.ini`**：規則設定。`[rule]` 指定標準文件（`standard`）、
+- **`rule.ini`**：規則設定，註解以所在目錄的語言撰寫。`[rule]` 指定標準文件（`standard`）、
   掃描規則檔（`scan`）與框架規則適用的檔案（`applies`），通用規則則設定
   `role="common"`；路徑相對於規則目錄。框架規則也可以覆寫 `defaults.ini` 的配分、
   扣分合併方式、嚴重度分級與等級；通用規則只能覆寫扣分合併方式與嚴重度分級（不含 `cap`），
@@ -62,10 +62,19 @@ code-review-scoring-rules/
 
 設定檔一律為 INI 格式，值以雙引號包住，`;` 或 `#` 開頭的行是註解。
 
-- **`rules.ini`**：每套規則一個區段，區段名稱為規則名稱。
-  `path` 為規則目錄（`rule.ini` 所在的目錄，完整路徑或相對於本專案根目錄），
-  `enable` 為 `"true"` 或 `"false"`，兩者都必填。停用的規則不參與評分，lint 仍會檢查。
-  啟用中的通用規則最多一套。
+- **`rules.ini`**：登錄規則，每套規則一個區段。區段名稱為規則名稱，
+  須與標準文件前置資料的 `name` 一致。兩個鍵都必填：
+  - `path`：規則目錄（`rule.ini` 所在的目錄），完整路徑或相對於 `rules.ini` 所在目錄的路徑。
+    本專案的規則也以它選擇語言：`zh-tw` 或 `en`（見「規則檔的語言」）。
+  - `enable`：`"true"` 或 `"false"`。停用的規則不參與評分，`standard lint` 仍會檢查。
+    啟用中的通用規則（`role="common"`）最多一套。
+
+  ```ini
+  [springboot-3]
+  path="springboot3-rule/zh-tw"
+  enable="true"
+  ```
+
 - **`defaults.ini`**：`[scoring]`、`[points]`、`[severity:代碼]` 與 `[grade:代碼]`，
   `rule.ini` 沒有設定的部分使用這裡的設定。取代以區塊群組為單位：
   `rule.ini` 有任何 `[severity:*]` 就整組取代嚴重度分級，有任何 `[grade:*]` 就整組取代等級。
@@ -82,18 +91,19 @@ A（95）、B（85）、C（70）、D（60）、F（0），有 Critical 扣分�
 
 ## 規則檔的語言
 
-規則檔不需要做 i18n。評分流程只讀取規則 `rule.ini` 中 `standard` 與 `scan`
-指定的標準文件與掃描規則檔，不會依語言切換，所以依自己喜歡或團隊使用的語言建立一份規則即可，
+規則檔不需要做 i18n。評分流程只讀取 `rules.ini` 登錄的那一個規則目錄，
+不會依語言切換，所以依自己喜歡或團隊使用的語言建立一份規則即可，
 不需要同時維護多種語言的版本。
 
 本專案的 `zh-tw/` 與 `en/` 是同一套規則的兩種語言版本，
 檢查項代碼、嚴重度與事先確認事項完全相同，用來示範兩種模板。
-要把規則換成英文版時，把該規則 `rule.ini` 中 `standard` 與 `scan` 的 `zh-tw/` 換成 `en/`：
+兩個目錄各有自己的 `rule.ini`，目錄中的所有內容（包含 `rule.ini` 的註解）都以該目錄的語言撰寫。
+要把規則換成英文版時，把 `rules.ini` 中該規則 `path` 的 `zh-tw` 換成 `en`：
 
 ```ini
-[rule]
-standard="en/springboot-3-cr-scoring-rule.md"
-scan="en/springboot-3-cr-scoring-rule.tsv"
+[springboot-3]
+path="springboot3-rule/en"
+enable="true"
 ```
 
 撰寫其他語言的規則檔時請注意：
@@ -124,7 +134,7 @@ scan="en/springboot-3-cr-scoring-rule.tsv"
    root="/path/to/code-review-scoring-rules"
    ```
 
-3. 要改用英文版時，把各規則 `rule.ini` 中 `standard` 與 `scan` 的 `zh-tw/` 換成 `en/`
+3. 要改用英文版時，把 `rules.ini` 中各規則 `path` 的 `zh-tw` 換成 `en`
    （見「規則檔的語言」）。
 4. 在 code-review-scoring 專案根目錄執行 `standard lint` 檢查規則（見下方）。
 
