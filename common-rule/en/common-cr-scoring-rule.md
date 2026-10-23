@@ -1,8 +1,8 @@
 ---
-# Standard ID: lowercase letters, digits and - only; must match the section name in configs/standards.ini
+# Standard ID: lowercase letters, digits and - only; must match the section name in rules.ini of the rules project
 name: common
 # Standard version, recorded in the scoring report
-version: v0.1
+version: v0.2
 ---
 
 # Common File PR Quality Scoring Rules
@@ -25,14 +25,15 @@ community: markdownlint, the GitHub Actions security hardening guide, Docker's
 official Dockerfile best practices and hadolint, ShellCheck, PSScriptAnalyzer,
 the OWASP Secrets Management Cheat Sheet and The Twelve-Factor App.
 
-This document is plugged into the code-review-scoring workflow through
-`configs/standards.ini` as the common standard (`role="common"`). The automatic
-scan rules are in `common-cr-scoring-rule.tsv` in the same directory:
+This document is set up as the common rule of code-review-scoring
+(`role="common"`) by the `rule.ini` in the parent rule directory, and
+registered as `common` in `rules.ini` of the rules project. The automatic scan
+rules are in `common-cr-scoring-rule.tsv` in the same directory:
 
 ```ini
-[common]
-path="/path/to/common-cr-scoring-rule.md"
-scan="/path/to/common-cr-scoring-rule.tsv"
+[rule]
+standard="en/common-cr-scoring-rule.md"
+scan="en/common-cr-scoring-rule.tsv"
 role="common"
 ```
 
@@ -45,10 +46,11 @@ covered in this document.
 
 ## Dimensions
 
-All standards share the following seven dimensions. Points default to `[points]`
-in `configs/settings.ini` and can be overridden in this standard's section of
-`configs/standards.ini` (used only when this standard produces a report on its
-own). The first letter after `CM-` in a check code indicates its dimension.
+All standards share the following seven dimensions. The points and the grades
+always come from `defaults.ini` of the rules project; the severity scale also
+comes from `defaults.ini` and can be overridden in the `rule.ini` in the parent
+rule directory. The first letter after `CM-` in a check code indicates its
+dimension.
 
 | Code | Dimension | Focus |
 | --- | --- | --- |
