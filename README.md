@@ -32,11 +32,11 @@ code-review-scoring-rules/
       springboot-3-cr-scoring-rule.md    Spring Boot 3 standard (Traditional Chinese)
       springboot-3-cr-scoring-rule.tsv   Scan rules for Spring Boot 3
     en/                                  The same rule in English (same files)
-  common-rule/
+  global-rule/
     zh-tw/
       rule.ini                           Rule settings: document, scan rules, role
-      common-cr-scoring-rule.md          Common standard (Traditional Chinese)
-      common-cr-scoring-rule.tsv         Scan rules for the common standard
+      global-cr-scoring-rule.md          Global standard (Traditional Chinese)
+      global-cr-scoring-rule.tsv         Scan rules for the global standard
     en/                                  The same rule in English (same files)
   docs/
     zh-tw/README.md                      Traditional Chinese README
@@ -47,7 +47,7 @@ code-review-scoring-rules/
 | Rule | Type | Applies to | Traditional Chinese | English |
 | --- | --- | --- | --- | --- |
 | `springboot-3` | Framework rule | Java/Spring Boot 3 projects | [springboot-3-cr-scoring-rule.md](springboot3-rule/zh-tw/springboot-3-cr-scoring-rule.md) | [springboot-3-cr-scoring-rule.md](springboot3-rule/en/springboot-3-cr-scoring-rule.md) |
-| `common` | Common rule (`role="common"`) | Files not covered by any framework rule, such as READMEs, CI/CD configs, Dockerfiles, scripts and JSON/YAML configs | [common-cr-scoring-rule.md](common-rule/zh-tw/common-cr-scoring-rule.md) | [common-cr-scoring-rule.md](common-rule/en/common-cr-scoring-rule.md) |
+| `global` | Global rule (`role="global"`) | Global rules: every file of every report. Check items: files not covered by any framework rule, such as READMEs, CI/CD configs, Dockerfiles, scripts and JSON/YAML configs | [global-cr-scoring-rule.md](global-rule/zh-tw/global-cr-scoring-rule.md) | [global-cr-scoring-rule.md](global-rule/en/global-cr-scoring-rule.md) |
 
 `rules.ini` registers the Traditional Chinese folders. Each language folder
 of a rule is a rule folder of its own, written in that language, and holds:
@@ -55,15 +55,18 @@ of a rule is a rule folder of its own, written in that language, and holds:
 - **`rule.ini`**: the rule settings, with comments in the language of its
   folder. `[rule]` names the standard document
   (`standard`), the scan rule file (`scan`) and the files a framework rule
-  applies to (`applies`), or `role="common"` for the common rule; the paths
+  applies to (`applies`), or `role="global"` for the global rule; the paths
   are relative to the rule folder. A framework rule may also override the
   points, deduction merging, severity scale and grades of `defaults.ini`. The
-  common rule may override only the deduction merging and the severity scale
+  global rule may override only the deduction merging and the severity scale
   (without `cap`): its points and grades always come from `defaults.ini`.
 - **Standard document** (`.md`): the dimensions, check items, confirmations
   and so on. The `name` field in the front matter is the rule name and must
   equal its section in `rules.ini`; `version` is recorded in the scoring
-  report.
+  report. The global standard also has a section Global rules
+  (`## 全域規則` or `## Global rules`) with the rules that apply to every
+  file of every report; where a framework standard says otherwise, the
+  framework standard wins.
 - **Scan rule file** (`.tsv`): candidate hints found by regular expressions.
   These are hints only and never deduct points directly.
 
@@ -80,8 +83,8 @@ starting with `;` or `#` are comments.
     also picks the language: `zh-tw` or `en` (see
     [Language of rule files](#language-of-rule-files)).
   - `enable`: `"true"` or `"false"`. Disabled rules are not used for scoring,
-    but `standard lint` still checks them. At most one common rule
-    (`role="common"`) can be enabled.
+    but `standard lint` still checks them. At most one global rule
+    (`role="global"`) can be enabled.
 
   ```ini
   [springboot-3]
@@ -151,14 +154,10 @@ When writing rule files in another language, note that:
    git clone https://github.com/samuikaze/code-review-scoring-rules.git
    ```
 
-2. In `configs/settings.ini` of code-review-scoring, add a `[rules]` section
-   with `root` pointing to the cloned folder (full path, or relative to
-   `configs/`; on Windows, use forward slashes):
-
-   ```ini
-   [rules]
-   root="/path/to/code-review-scoring-rules"
-   ```
+2. Point `root` in the `[rules]` section of `configs/settings.ini` of
+   code-review-scoring to the cloned folder; see
+   [the `[rules]` section](https://github.com/samuikaze/code-review-scoring/blob/main/docs/en/configurations.md#the-rules-section)
+   of its configuration guide.
 
 3. To use the English rules, change `zh-tw` to `en` in the `path` of each
    rule in `rules.ini` (see
@@ -166,47 +165,26 @@ When writing rule files in another language, note that:
 4. Run `standard lint` in the root of code-review-scoring to check the rules
    (see below).
 
-`settings.ini` is not under version control, so set `root` on each machine or
-for each user.
-
 ## Adding or modifying rules
 
-Writing and checking rules is always done from the code-review-scoring
-project: this project holds only the rules and their settings, and the
-templates, scripts and the `code-review-scoring-standard` skill stay there.
+Change the rules from the code-review-scoring project, not from here: this
+project holds only the rules and their settings, and the templates, scripts
+and skills stay there.
 
-1. Create a folder for the rule (for example `<rule>-rule/`) with a
-   `rule.ini` written from the rule settings template
-   ([English](https://github.com/samuikaze/code-review-scoring/blob/main/templates/en/rule-template.ini),
-   [Traditional Chinese](https://github.com/samuikaze/code-review-scoring/blob/main/templates/zh-tw/rule-template.ini))
-   and a standard document written from the standard document template
-   ([English](https://github.com/samuikaze/code-review-scoring/blob/main/templates/en/scoring-rule-template.md),
-   [Traditional Chinese](https://github.com/samuikaze/code-review-scoring/blob/main/templates/zh-tw/scoring-rule-template.md))
-   of code-review-scoring. A single language is enough; see
-   [Language of rule files](#language-of-rule-files).
-2. Register the rule in `rules.ini` with its `path` and `enable="true"`.
-3. The "Dimensions", "Check items" and "Confirmations" sections of the
-   document are parsed by scripts and must follow the fixed format. The
-   "Special rules" and "Judging hints" sections are for AI reference only and
-   can be written freely.
-4. Bump the `version` field in the front matter whenever you modify a
-   standard document. For rules this project provides in several languages,
-   update the other language versions as well.
-5. If a scan rule file is needed, generate or update it with the
-   [`code-review-scoring-standard`](https://github.com/samuikaze/code-review-scoring/blob/main/skills/code-review-scoring-standard/SKILL.md)
-   skill in code-review-scoring instead of writing regular expressions by
-   hand.
-6. Run lint in the root of code-review-scoring to check `rules.ini`,
-   `defaults.ini`, every `rule.ini`, the documents and the scan rules:
+- **With an agent**: ask an agent in code-review-scoring to add or change a
+  rule. Its
+  [`code-review-scoring-rule-authoring`](https://github.com/samuikaze/code-review-scoring/blob/main/skills/code-review-scoring-rule-authoring/SKILL.md)
+  skill shows every change, including the other language folders of the rule,
+  writes it here only after you confirm, updates the scan rules and runs lint.
+  See
+  [Changing the rules](https://github.com/samuikaze/code-review-scoring#changing-the-rules).
+- **By hand**: write the files from the templates of code-review-scoring (see
+  [Scoring standards](https://github.com/samuikaze/code-review-scoring#scoring-standards)),
+  bump `version` in the front matter of every changed document, generate
+  the scan rules with its `code-review-scoring-standard` skill, and run
+  `standard lint` there.
 
-   ```bash
-   bash skills/code-review-scoring/scripts/standard.sh lint
-   ```
-
-   ```powershell
-   powershell -ExecutionPolicy Bypass `
-     -File skills\code-review-scoring\scripts\standard.ps1 lint
-   ```
+Neither way commits: review and commit the changes in this project yourself.
 
 ## Notes
 
