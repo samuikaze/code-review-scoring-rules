@@ -29,11 +29,11 @@ code-review-scoring-rules/
       springboot-3-cr-scoring-rule.md    Spring Boot 3 標準文件（繁體中文）
       springboot-3-cr-scoring-rule.tsv   Spring Boot 3 的掃描規則
     en/                                  同一套規則的英文版（檔案同上）
-  common-rule/
+  global-rule/
     zh-tw/
-      rule.ini                           規則設定：標準文件、掃描規則、role="common"
-      common-cr-scoring-rule.md          通用標準文件（繁體中文）
-      common-cr-scoring-rule.tsv         通用標準的掃描規則
+      rule.ini                           規則設定：標準文件、掃描規則、role="global"
+      global-cr-scoring-rule.md          全域標準文件（繁體中文）
+      global-cr-scoring-rule.tsv         全域標準的掃描規則
     en/                                  同一套規則的英文版（檔案同上）
   docs/
     zh-tw/README.md                      繁體中文 README
@@ -44,18 +44,20 @@ code-review-scoring-rules/
 | 規則名稱 | 類型 | 適用範圍 | 繁體中文 | 英文 |
 | --- | --- | --- | --- | --- |
 | `springboot-3` | 框架規則 | Java／Spring Boot 3 專案 | [springboot-3-cr-scoring-rule.md](../../springboot3-rule/zh-tw/springboot-3-cr-scoring-rule.md) | [springboot-3-cr-scoring-rule.md](../../springboot3-rule/en/springboot-3-cr-scoring-rule.md) |
-| `common` | 通用規則（`role="common"`） | 不屬於任何框架規則的檔案，例如 README、CI／CD 設定、Dockerfile、腳本、JSON／YAML 設定 | [common-cr-scoring-rule.md](../../common-rule/zh-tw/common-cr-scoring-rule.md) | [common-cr-scoring-rule.md](../../common-rule/en/common-cr-scoring-rule.md) |
+| `global` | 全域規則（`role="global"`） | 全域規則：每一份報告的所有檔案。檢查項：不屬於任何框架規則的檔案，例如 README、CI／CD 設定、Dockerfile、腳本、JSON／YAML 設定 | [global-cr-scoring-rule.md](../../global-rule/zh-tw/global-cr-scoring-rule.md) | [global-cr-scoring-rule.md](../../global-rule/en/global-cr-scoring-rule.md) |
 
 `rules.ini` 預設登錄繁體中文版的目錄。規則的每個語言目錄都是獨立的規則目錄，以該語言撰寫，包含：
 
 - **`rule.ini`**：規則設定，註解以所在目錄的語言撰寫。`[rule]` 指定標準文件（`standard`）、
-  掃描規則檔（`scan`）與框架規則適用的檔案（`applies`），通用規則則設定
-  `role="common"`；路徑相對於規則目錄。框架規則也可以覆寫 `defaults.ini` 的配分、
-  扣分合併方式、嚴重度分級與等級；通用規則只能覆寫扣分合併方式與嚴重度分級（不含 `cap`），
+  掃描規則檔（`scan`）與框架規則適用的檔案（`applies`），全域規則則設定
+  `role="global"`；路徑相對於規則目錄。框架規則也可以覆寫 `defaults.ini` 的配分、
+  扣分合併方式、嚴重度分級與等級；全域規則只能覆寫扣分合併方式與嚴重度分級（不含 `cap`），
   配分與等級一律使用 `defaults.ini`。
 - **標準文件**（`.md`）：定義面向、檢查項、事先確認事項等內容。
   前置資料的 `name` 為規則名稱，須與 `rules.ini` 的區段名稱一致；
   `version` 為標準版本，會記錄在評分報告中。
+  全域標準另外有「全域規則」章節（`## 全域規則` 或 `## Global rules`），
+  寫每份報告的所有檔案都要套用的規定；框架標準的規定與它不同時，以框架標準為準。
 - **掃描規則檔**（`.tsv`）：以正規表示式列出候選線索，只作為提示，不會直接扣分。
 
 ## 設定檔
@@ -67,7 +69,7 @@ code-review-scoring-rules/
   - `path`：規則目錄（`rule.ini` 所在的目錄），完整路徑或相對於 `rules.ini` 所在目錄的路徑。
     本專案的規則也以它選擇語言：`zh-tw` 或 `en`（見「規則檔的語言」）。
   - `enable`：`"true"` 或 `"false"`。停用的規則不參與評分，`standard lint` 仍會檢查。
-    啟用中的通用規則（`role="common"`）最多一套。
+    啟用中的全域規則（`role="global"`）最多一套。
 
   ```ini
   [springboot-3]
@@ -125,52 +127,30 @@ enable="true"
    git clone https://github.com/samuikaze/code-review-scoring-rules.git
    ```
 
-2. 在 code-review-scoring 的 `configs/settings.ini` 加上 `[rules]` 區段，
-   `root` 指向 clone 下來的目錄（完整路徑，或相對於 `configs/` 的路徑；
-   Windows 請使用斜線）：
-
-   ```ini
-   [rules]
-   root="/path/to/code-review-scoring-rules"
-   ```
+2. 把 code-review-scoring 的 `configs/settings.ini` 中 `[rules]` 區段的 `root`
+   指向 clone 下來的目錄，設定方式見它的設定檔說明
+   [`[rules]` 區段](https://github.com/samuikaze/code-review-scoring/blob/main/docs/zh-tw/configurations.md#rules-區段)。
 
 3. 要改用英文版時，把 `rules.ini` 中各規則 `path` 的 `zh-tw` 換成 `en`
    （見「規則檔的語言」）。
 4. 在 code-review-scoring 專案根目錄執行 `standard lint` 檢查規則（見下方）。
 
-`settings.ini` 不進版控，換電腦或換人時請各自設定 `root`。
-
 ## 新增或修改規則
 
-規則的撰寫與檢查一律從 code-review-scoring 專案執行：
-本專案只放規則與設定，模板、腳本與 `code-review-scoring-standard` Skill 都在評分專案中。
+規則一律從 code-review-scoring 專案修改，不要在這個專案中進行：
+本專案只放規則與設定，模板、腳本與 Skill 都在評分專案中。
 
-1. 為規則建立一個目錄（例如 `<規則名稱>-rule/`），放入依 code-review-scoring 的規則設定模板
-   （[繁體中文](https://github.com/samuikaze/code-review-scoring/blob/main/templates/zh-tw/rule-template.ini)、
-   [英文](https://github.com/samuikaze/code-review-scoring/blob/main/templates/en/rule-template.ini)）
-   撰寫的 `rule.ini`，以及依標準文件模板
-   （[繁體中文](https://github.com/samuikaze/code-review-scoring/blob/main/templates/zh-tw/scoring-rule-template.md)、
-   [英文](https://github.com/samuikaze/code-review-scoring/blob/main/templates/en/scoring-rule-template.md)）撰寫的標準文件。
-   只寫一種語言即可，見「規則檔的語言」。
-2. 在 `rules.ini` 登錄這套規則，設定 `path` 與 `enable="true"`。
-3. 標準文件的「面向」「檢查項」「事先確認事項」三個章節由腳本解析，格式固定；
-   「特例規則」「判斷提示」只給 AI 參考，可以自由撰寫。
-4. 修改標準文件後，請同步更新前置資料的 `version`。
-   本專案已提供多種語言版本的規則，修改其中一種時請一併更新其他語言版本。
-5. 需要掃描規則檔時，可在 code-review-scoring 中透過
-   [`code-review-scoring-standard`](https://github.com/samuikaze/code-review-scoring/blob/main/skills/code-review-scoring-standard/SKILL.md)
-   Skill 產生或更新，不需手寫正規表示式。
-6. 在 code-review-scoring 專案根目錄執行 lint，檢查 `rules.ini`、`defaults.ini`、
-   各規則的 `rule.ini`、標準文件與掃描規則：
+- **透過 AI 修改**：在 code-review-scoring 中請 AI 新增或修改規則。它的
+  [`code-review-scoring-rule-authoring`](https://github.com/samuikaze/code-review-scoring/blob/main/skills/code-review-scoring-rule-authoring/SKILL.md)
+  Skill 會列出所有修改（包含這套規則其他語言目錄的修改），你確認後才寫入本專案，
+  再更新掃描規則並執行 lint。詳見
+  [修改規則](https://github.com/samuikaze/code-review-scoring/blob/main/docs/zh-tw/README.md#修改規則)。
+- **自行修改**：依 code-review-scoring 的範本撰寫（見
+  [評分標準](https://github.com/samuikaze/code-review-scoring/blob/main/docs/zh-tw/README.md#評分標準)），
+  調升每份修改過的標準文件前置資料的 `version`，以它的 `code-review-scoring-standard`
+  Skill 產生掃描規則，並在該專案執行 `standard lint`。
 
-   ```bash
-   bash skills/code-review-scoring/scripts/standard.sh lint
-   ```
-
-   ```powershell
-   powershell -ExecutionPolicy Bypass `
-     -File skills\code-review-scoring\scripts\standard.ps1 lint
-   ```
+兩種方式都不會 commit：請自行在本專案中審查並 commit。
 
 ## 注意事項
 

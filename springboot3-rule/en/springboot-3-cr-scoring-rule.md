@@ -24,7 +24,7 @@ scan="springboot-3-cr-scoring-rule.tsv"
 applies="*.java, *.kt, *.sql, *.xml, *.yml, *.yaml, *.properties, *.gradle, *.kts"
 ```
 
-General rules such as the scoring scope, deductions requiring evidence and
+Workflow rules such as the scoring scope, deductions requiring evidence and
 upstream factors are handled by the scoring workflow and are not covered in this
 document.
 
@@ -200,18 +200,15 @@ not asked again.
   logic, it stays Major.
 - F9: Scored only when the diff or existing code shows that the project uses
   springdoc; otherwise recorded as not applicable.
-- Third-party workaround exemption: code written to work around an issue in a
-  third-party core system is not deducted for check items in dimension F
-  if a comment explains why **and** includes the vendor's issue ticket number.
-  If either is missing, deduct as usual.
 
 ## Judgment hints
 
 - E2: Small config tables stay Minor; large or continuously growing tables such
   as order tables are raised to Major. When the data volume cannot be seen from
   the diff, ask as described in "Confirmations".
-- Static analysis reports usually come from Checkstyle, SpotBugs or SonarQube;
-  issues already listed in a report are not deducted again.
+- Static analysis reports usually come from Checkstyle, SpotBugs or SonarQube
+  (whether their issues are deducted is decided by the global rules of the
+  global standard).
 - For each new or modified API endpoint, check B3 (authentication,
   authorization, resource owner) and B4.
 - A6, A8, B3, C2, D3, E3, F2, F4 and F6 require reading the code in context, do

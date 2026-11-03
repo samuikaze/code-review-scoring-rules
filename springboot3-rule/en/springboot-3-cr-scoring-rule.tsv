@@ -1,19 +1,7 @@
 # Scan rules of the springboot-3 standard (springboot-3-cr-scoring-rule.md), referenced by scan= in rule.ini.
-# source: springboot-3-cr-scoring-rule.md v0.8 sha256:b4afe21bd1dd467f5524540e24ca19f6e700ea13b761b0d61ef4e6cd5fde4e15
+# source: springboot-3-cr-scoring-rule.md v0.8 sha256:c75663936e11127761857bb3ebe106717c06ba8390ac13d41ffd3da354b11872
 # prepare-diff lists the hits as CANDIDATES only; confirm each against the code before deducting.
-# Regexes must use the subset shared by POSIX ERE and .NET (no \b, \s, \d, lookaround). Fields are TAB-separated.
-#
-# @scope  name  within  path-regex
-#   Defines a file scope: files whose path matches path-regex and that are in scope "within" (- = no condition,
-#   !name = not in that scope). The built-in scope "any" covers every reviewed file. The summary of prepared.txt
-#   counts the scopes named main, test and migration when they are defined.
-# @pr  id  condition  hint
-#   PR-level hint: condition is a comma-separated list of has:<scope> (the PR adds lines to a file in the scope),
-#   no:<scope> (the PR touches no file in the scope) and modified:<scope> (the PR modifies, deletes or renames an
-#   existing file in the scope; the hint lists those files); all must hold.
-# id  scope  flags  regex  prev-regex  exclude-regex  hint
-#   Line rule. flags: i=case-insensitive  c=also match comment lines  -=none. prev-regex: the previous non-blank
-#   new-side line must match (- = none). exclude-regex is matched against "previous line + current line".
+# Format: see references/scan-format.md of the code-review-scoring-standard skill. Fields are TAB-separated.
 
 # File scopes
 @scope	test	-	(^|/)src/test/|(Test|Tests|IT)\.(java|kt)$
