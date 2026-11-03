@@ -2,7 +2,7 @@
 # Standard ID: lowercase letters, digits and - only; must match the section name in rules.ini of the rules project
 name: common
 # Standard version, recorded in the scoring report
-version: v0.3
+version: v0.4
 ---
 
 # Common File PR Quality Scoring Rules
@@ -39,14 +39,14 @@ role="common"
 
 When a PR also changes framework files, the deductions for common files are
 merged into the framework report of the project they belong to, under the same
-A to G dimensions. When a PR changes only common files, this standard produces a
+A to F dimensions. When a PR changes only common files, this standard produces a
 report on its own. General rules such as the scoring scope, deductions requiring
 evidence and upstream factors are handled by the scoring workflow and are not
 covered in this document.
 
 ## Dimensions
 
-All standards share the following seven dimensions. The points and the grades
+All standards share the following six dimensions. The points and the grades
 always come from `defaults.ini` of the rules project; the severity scale also
 comes from `defaults.ini` and can be overridden in the `rule.ini` in the same
 directory. The first letter after `CM-` in a check code indicates its
@@ -59,8 +59,7 @@ dimension.
 | C | Test quality | Tests and checks still run; changes are verifiable |
 | D | Architecture and design | Responsibilities, duplication, env separation |
 | E | Performance and resource use | Build cache, image size, limits, timeouts |
-| F | Readability | Docs are complete and correct; scripts are clear |
-| G | Maintainability | Pinned versions, idioms, config docs, VCS settings |
+| F | Readability and maintainability | Docs are complete and correct; scripts are clear; pinned versions, idioms, config docs, VCS settings |
 
 ## Check items
 
@@ -166,7 +165,7 @@ item may be lowered to `Nit`.
   `timeout-minutes`, memory and CPU limits), so it can hold resources for a
   long time when it runs away｜Minor
 
-### F. Readability
+### F. Readability and maintainability
 
 - CM-F1｜A README lacks essential content: purpose, installation or usage,
   configuration, or the usage instructions are not updated after adding
@@ -178,22 +177,19 @@ item may be lowered to `Nit`.
   have no comment explaining why｜Minor
 - CM-F4｜A PowerShell script uses aliases (for example `ls`, `%`, `?`) or
   positional parameters instead of full cmdlet and parameter names｜Nit
-
-### G. Maintainability
-
-- CM-G1｜A base image, tool or package version is not pinned: the `latest`
+- CM-F5｜A base image, tool or package version is not pinned: the `latest`
   tag, no tag, or no version specified at installation｜Major
-- CM-G2｜A Dockerfile does not follow conventions: `ADD` used to copy ordinary
+- CM-F6｜A Dockerfile does not follow conventions: `ADD` used to copy ordinary
   files or download remote files (use `COPY`, or `curl` with verification), or
   `CMD` or `ENTRYPOINT` in shell form, so the container does not receive stop
   signals｜Minor
-- CM-G3｜A new setting or environment variable has no default value and is not
+- CM-F7｜A new setting or environment variable has no default value and is not
   documented in a template or documentation (for example `.env.example` or the
   README)｜Minor
-- CM-G4｜New generated files, build artifacts or local settings are not added
+- CM-F8｜New generated files, build artifacts or local settings are not added
   to `.gitignore`, or `.gitignore` excludes files that should be under version
   control｜Minor
-- CM-G5｜A file's line endings, encoding or indentation do not match the
+- CM-F9｜A file's line endings, encoding or indentation do not match the
   project settings (`.editorconfig`, `.gitattributes`), for example a shell
   script using CRLF｜Minor｜Major｜
   When it keeps the script from running on the target platform
@@ -227,21 +223,21 @@ half-width commas.
 - CM-B5: No deduction when the base image runs as a non-root user by default
   (for example distroless `nonroot`), or for a multi-stage build that uses root
   only in the build stage and switches users in the final stage.
-- CM-G1: May be lowered to `Nit` for compose or example files that are for
+- CM-F5: May be lowered to `Nit` for compose or example files that are for
   development and clearly marked as not for production.
 - Issues already listed in a provided static analysis report (ShellCheck,
   hadolint, markdownlint, actionlint and so on) are not deducted again. When no
   report is provided, pure formatting issues (indentation, whitespace) are not
-  deducted, except for CM-G5.
+  deducted, except for CM-F9.
 
 ## Judgment hints
 
 - Find the applicable check items by file type:
   - Documentation: CM-A5, CM-F1, CM-F2.
   - CI/CD: CM-A4, CM-B2 to CM-B4, CM-B6, CM-C1, CM-D1, CM-E3, CM-E4.
-  - Containers: CM-B5 to CM-B7, CM-B9, CM-D2, CM-E1, CM-E2, CM-G1, CM-G2.
+  - Containers: CM-B5 to CM-B7, CM-B9, CM-D2, CM-E1, CM-E2, CM-F5, CM-F6.
   - Scripts: CM-A1 to CM-A3, CM-A6, CM-B7, CM-B8, CM-C2, CM-D4, CM-F3, CM-F4.
-  - Other configs: CM-B1, CM-D3, CM-G3 to CM-G5.
+  - Other configs: CM-B1, CM-D3, CM-F7 to CM-F9.
 - CM-B2: In GitHub Actions, untrusted input should first be put in `env:` and
   referenced in commands as an environment variable; use in `if:` conditions
   does not count.
@@ -249,7 +245,7 @@ half-width commas.
   recommended; when pinning a SHA, marking the corresponding version number in a
   comment is common practice.
 - CM-A5, CM-A6, CM-A4, CM-C2, CM-D1, CM-D2, CM-D3, CM-D4, CM-E3, CM-E4, CM-F1,
-  CM-F3, CM-G3, CM-G4 and CM-G5 require reading the whole file or its context,
+  CM-F3, CM-F7, CM-F8 and CM-F9 require reading the whole file or its context,
   do not appear in the automatic scan candidates, and must be checked manually.
 - Automatic scan candidates are only hints: for example, `FROM builder` may
   refer to an earlier build stage rather than an untagged image. Confirm each

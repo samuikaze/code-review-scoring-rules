@@ -2,7 +2,7 @@
 # Standard ID: lowercase letters, digits and - only; must match the section name in rules.ini of the rules project
 name: springboot-3
 # Standard version, recorded in the scoring report
-version: v0.7
+version: v0.8
 ---
 
 # Spring Boot 3 PR Code Quality Scoring Rules
@@ -30,7 +30,7 @@ document.
 
 ## Dimensions
 
-All standards share the following seven dimensions. The points, the severity
+All standards share the following six dimensions. The points, the severity
 scale and the grades come from `defaults.ini` of the rules project and can be
 overridden in the `rule.ini` in the same directory. The first letter of a check
 code indicates its dimension.
@@ -42,8 +42,7 @@ code indicates its dimension.
 | C | Test quality | Whether tests are sufficient and meaningful |
 | D | Architecture and design | Layering, responsibilities, Spring conventions |
 | E | Performance and resource use | Query efficiency, resources, remote calls |
-| F | Readability | Whether others can easily understand the code |
-| G | Maintainability | Easy to modify and extend in the future |
+| F | Readability and maintainability | Whether others can easily understand the code; easy to modify and extend in the future |
 
 ## Check items
 
@@ -154,7 +153,7 @@ item may be lowered to `Nit`.
 - E7｜A column newly used as a query condition has no index created in a
   migration in the same PR, and no explanation is given｜Minor
 
-### F. Readability
+### F. Readability and maintainability
 
 - F1｜A method is longer than 50 lines, or nested more than 3 levels
   deep｜Minor
@@ -166,18 +165,15 @@ item may be lowered to `Nit`.
   way｜Minor
 - F5｜Commented-out code is left behind, or `System.out.println` is
   used｜Minor
-
-### G. Maintainability
-
-- G1｜The same logic appears two or more times in the diff and could be
+- F6｜The same logic appears two or more times in the diff and could be
   extracted for reuse but is not｜Major
-- G2｜Values that belong in a config file are hard-coded, or scattered `@Value`
+- F7｜Values that belong in a config file are hard-coded, or scattered `@Value`
   fields are added instead of `@ConfigurationProperties`｜Minor
-- G3｜Log levels are misused (for example `ERROR` in a normal flow), or logs use
+- F8｜Log levels are misused (for example `ERROR` in a normal flow), or logs use
   string concatenation instead of SLF4J parameterized messages｜Minor
-- G4｜A new public API has no OpenAPI annotations｜Minor
-- G5｜A TODO has no issue number｜Minor
-- G6｜An existing DB migration file (Flyway / Liquibase) is modified, or a
+- F9｜A new public API has no OpenAPI annotations｜Minor
+- F10｜A TODO has no issue number｜Minor
+- F11｜An existing DB migration file (Flyway / Liquibase) is modified, or a
   destructive schema change is made without explanation｜Major
 
 ## Confirmations
@@ -190,7 +186,7 @@ not asked again.
   diff involves time handling)
 - E2｜Whether the tables of the new queries keep growing, and the approximate
   number of rows (asked only when the diff involves queries)
-- G4｜Whether the project uses springdoc
+- F9｜Whether the project uses springdoc
 - B9｜Whether vulnerability scan results for the dependencies are available
 
 ## Special rules
@@ -202,10 +198,10 @@ not asked again.
 - C1: Raised to Critical only when the PR changes business logic but does not
   change any test file at all; when there are tests that do not cover the
   logic, it stays Major.
-- G4: Scored only when the diff or existing code shows that the project uses
+- F9: Scored only when the diff or existing code shows that the project uses
   springdoc; otherwise recorded as not applicable.
 - Third-party workaround exemption: code written to work around an issue in a
-  third-party core system is not deducted for check items in dimensions F and G
+  third-party core system is not deducted for check items in dimension F
   if a comment explains why **and** includes the vendor's issue ticket number.
   If either is missing, deduct as usual.
 
@@ -218,7 +214,7 @@ not asked again.
   issues already listed in a report are not deducted again.
 - For each new or modified API endpoint, check B3 (authentication,
   authorization, resource owner) and B4.
-- A6, A8, B3, C2, D3, E3, F2, F4 and G1 require reading the code in context, do
+- A6, A8, B3, C2, D3, E3, F2, F4 and F6 require reading the code in context, do
   not appear in the automatic scan candidates, and must be checked manually.
 - B9, E7 and F1 have no automatic scan rules either and must also be checked
   manually.

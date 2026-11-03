@@ -1,4 +1,4 @@
-# source: common-cr-scoring-rule.md v0.3 sha256:73b97d047bd2d9c6adf5d8ebada93295f0af12a47a2ef7236a5aa72849021f20
+# source: common-cr-scoring-rule.md v0.4 sha256:d9efe52b2f97dd5045bc72e0fbe660a868fe441c335387c55eee11f925d8dea3
 # Scan rules of the common standard (common-cr-scoring-rule.md), referenced by scan= in rule.ini.
 # prepare-diff lists the hits as CANDIDATES only; confirm each against the file before deducting.
 # Format: see references/scan-format.md of the code-review-scoring-standard skill. Fields are TAB-separated.
@@ -54,14 +54,12 @@ CM-E1	dockerfile	i	^[ \t]*copy[ \t]+(--[a-z]+=[^ \t]+[ \t]+)*\.[ \t]+	-	-	whole 
 CM-E2	dockerfile	i	apt-get[ \t]+(-[a-z-]+[ \t]+)*install	-	--no-install-recommends	package install keeps caches or extras; confirm --no-install-recommends / --no-cache and cleanup in the same layer
 CM-E2	dockerfile	i	apk[ \t]+add	-	--no-cache	package install keeps caches or extras; confirm --no-install-recommends / --no-cache and cleanup in the same layer
 
-# F. Readability
+# F. Readability and maintainability
 CM-F2	docs	-	\]\([ \t]*\)	-	-	empty link target
 CM-F4	pwsh	i	(^[ \t]*|\|[ \t]*)(ls|dir|cat|gc|gci|gcm|%|\?|select|where|foreach|sort|ft|fl|iwr|irm)([ \t]|$)	-	-	alias in a script; confirm the full cmdlet name is used
-
-# G. Maintainability
-CM-G1	dockerfile	i	^[ \t]*from[ \t]+(--platform=[^ \t]+[ \t]+)?[^ \t:@$]+(:latest)?([ \t]|$)	-	from[ \t]+scratch	version not pinned; confirm it is pinned (a FROM may name an earlier build stage)
-CM-G1	compose	-	image:[ \t]*["']?[^ \t:@"'$]+(:latest)?["']?[ \t]*$	-	-	version not pinned; confirm it is pinned (a FROM may name an earlier build stage)
-CM-G1	dockerfile	i	pip3?[ \t]+install[ \t]	-	(==|-r[ \t]|--requirement|-e[ \t]|--upgrade[ \t]+pip|\.whl)	version not pinned; confirm it is pinned (a FROM may name an earlier build stage)
-CM-G1	script	i	(npm[ \t]+(install|i)[ \t]+-g|pip3?[ \t]+install)[ \t]+[a-z@]	-	(==|@[0-9]|-r[ \t]|--requirement)	version not pinned; confirm it is pinned (a FROM may name an earlier build stage)
-CM-G2	dockerfile	i	^[ \t]*add[ \t]	-	-	Dockerfile convention; confirm COPY is enough for ADD, and CMD/ENTRYPOINT use the exec form
-CM-G2	dockerfile	i	^[ \t]*(cmd|entrypoint)[ \t]+[a-z0-9/.$]	-	-	Dockerfile convention; confirm COPY is enough for ADD, and CMD/ENTRYPOINT use the exec form
+CM-F5	dockerfile	i	^[ \t]*from[ \t]+(--platform=[^ \t]+[ \t]+)?[^ \t:@$]+(:latest)?([ \t]|$)	-	from[ \t]+scratch	version not pinned; confirm it is pinned (a FROM may name an earlier build stage)
+CM-F5	compose	-	image:[ \t]*["']?[^ \t:@"'$]+(:latest)?["']?[ \t]*$	-	-	version not pinned; confirm it is pinned (a FROM may name an earlier build stage)
+CM-F5	dockerfile	i	pip3?[ \t]+install[ \t]	-	(==|-r[ \t]|--requirement|-e[ \t]|--upgrade[ \t]+pip|\.whl)	version not pinned; confirm it is pinned (a FROM may name an earlier build stage)
+CM-F5	script	i	(npm[ \t]+(install|i)[ \t]+-g|pip3?[ \t]+install)[ \t]+[a-z@]	-	(==|@[0-9]|-r[ \t]|--requirement)	version not pinned; confirm it is pinned (a FROM may name an earlier build stage)
+CM-F6	dockerfile	i	^[ \t]*add[ \t]	-	-	Dockerfile convention; confirm COPY is enough for ADD, and CMD/ENTRYPOINT use the exec form
+CM-F6	dockerfile	i	^[ \t]*(cmd|entrypoint)[ \t]+[a-z0-9/.$]	-	-	Dockerfile convention; confirm COPY is enough for ADD, and CMD/ENTRYPOINT use the exec form
