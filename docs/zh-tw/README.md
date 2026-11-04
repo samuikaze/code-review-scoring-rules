@@ -22,7 +22,7 @@
 ```text
 code-review-scoring-rules/
   rules.ini                              規則登錄（各規則的目錄與是否啟用）
-  defaults.ini                           預設的面向配分、扣分合併方式、嚴重度分級與等級
+  defaults.ini                           預設的面向配分、扣分合併方式、嚴重度分級、等級與不評分的檔案
   springboot3-rule/
     zh-tw/
       rule.ini                           規則設定：標準文件、掃描規則、applies
@@ -62,14 +62,10 @@ code-review-scoring-rules/
 
 ## 設定檔
 
-設定檔一律為 INI 格式，值以雙引號包住，`;` 或 `#` 開頭的行是註解。
+設定檔的格式由 code-review-scoring 說明，這裡只列出本專案各設定檔的用途。
 
-- **`rules.ini`**：登錄規則，每套規則一個區段。區段名稱為規則名稱，
-  須與標準文件前置資料的 `name` 一致。兩個鍵都必填：
-  - `path`：規則目錄（`rule.ini` 所在的目錄），完整路徑或相對於 `rules.ini` 所在目錄的路徑。
-    本專案的規則也以它選擇語言：`zh-tw` 或 `en`（見「規則檔的語言」）。
-  - `enable`：`"true"` 或 `"false"`。停用的規則不參與評分，`standard lint` 仍會檢查。
-    啟用中的全域規則（`role="global"`）最多一套。
+- **`rules.ini`**：登錄本專案的規則，每套規則一個區段，設定規則目錄（`path`）與是否啟用（`enable`）。
+  本專案的規則也以 `path` 選擇語言：`zh-tw` 或 `en`（見「規則檔的語言」）。
 
   ```ini
   [springboot-3]
@@ -77,16 +73,13 @@ code-review-scoring-rules/
   enable="true"
   ```
 
-- **`defaults.ini`**：`[scoring]`、`[points]`、`[severity:代碼]` 與 `[grade:代碼]`，
-  `rule.ini` 沒有設定的部分使用這裡的設定。取代以區塊群組為單位：
-  `rule.ini` 有任何 `[severity:*]` 就整組取代嚴重度分級，有任何 `[grade:*]` 就整組取代等級。
+- **`defaults.ini`**：沒有自行設定的規則所使用的面向配分、扣分合併方式、嚴重度分級與等級，
+  以及所有規則都不評分的檔案 `[exclude]`（建置產物、lock 檔、二進位檔與自動產生的程式碼）。
+  見[調整配分與嚴重度](https://github.com/samuikaze/code-review-scoring/blob/main/docs/zh-tw/README.md#調整配分與嚴重度)
+  與[不評分的檔案](https://github.com/samuikaze/code-review-scoring/blob/main/docs/zh-tw/README.md#不評分的檔案)。
 - **`rule.ini`**：各區段與鍵的說明見 code-review-scoring 的規則設定模板
   （[繁體中文](https://github.com/samuikaze/code-review-scoring/blob/main/templates/zh-tw/rule-template.ini)、
   [英文](https://github.com/samuikaze/code-review-scoring/blob/main/templates/en/rule-template.ini)）。
-
-預設的嚴重度分級中，必須修正的問題沿用 SonarQube 傳統嚴重度的 Critical、Major、Minor，
-風格層面的小問題沿用 Google Code Review 指引的 Nit。預設等級為
-A（95）、B（85）、C（70）、D（60）、F（0），有 Critical 扣分項時等級上限為 B。
 
 只有在有明確理由時才覆寫規則的分級，並把理由寫在該規則的標準文件中。
 嚴重度與等級的代碼不隨語言改變；報告上要顯示其他名稱時，以 `name` 設定顯示名稱。
@@ -110,9 +103,8 @@ enable="true"
 
 撰寫其他語言的規則檔時請注意：
 
-- 由腳本解析的章節名稱與面向名稱，目前只認得繁體中文或英文，
-  例如「面向」或 `Dimensions`、「檢查項」或 `Check items`、
-  「事先確認事項」或 `Confirmations`、「正確性」或 `Correctness`。
+- 章節名稱與面向名稱沿用 code-review-scoring 範本的寫法（見
+  [評分標準](https://github.com/samuikaze/code-review-scoring/blob/main/docs/zh-tw/README.md#評分標準)）。
   其餘內容（檢查項說明、特例規則、判斷提示等）可以使用任何語言。
 - 檢查項代碼、嚴重度代碼（預設為 `Critical`、`Major`、`Minor`、`Nit`）
   與全形分隔符號 `｜` 維持原樣，不翻譯。
@@ -154,8 +146,8 @@ enable="true"
 
 ## 注意事項
 
-- 評分途中不要修改規則。評分流程會在步驟 1 記錄標準文件、掃描規則檔、
-  `rule.ini` 與 `defaults.ini` 的 sha256，之後被修改時流程會拒絕繼續。
+- 評分途中不要修改規則，見 code-review-scoring 的
+  [注意事項](https://github.com/samuikaze/code-review-scoring/blob/main/docs/zh-tw/notices.md#評分標準)。
 - 掃描規則檔開頭的 `# source:` 行記錄來源標準文件的版本與 sha256，
   標準文件修改後請重新產生或審核掃描規則檔。
 - 標準文件須通過 markdownlint，僅停用 MD028 與 MD033。

@@ -2,7 +2,7 @@
 # Standard ID: lowercase letters, digits and - only; must match the section name in rules.ini of the rules project
 name: global
 # Standard version, recorded in the scoring report
-version: v0.4
+version: v0.5
 ---
 
 # Global PR Quality Scoring Rules
@@ -30,25 +30,6 @@ community: markdownlint, the GitHub Actions security hardening guide, Docker's
 official Dockerfile best practices and hadolint, ShellCheck, PSScriptAnalyzer,
 the OWASP Secrets Management Cheat Sheet and The Twelve-Factor App.
 
-This document is set up as the global standard of code-review-scoring
-(`role="global"`) by the `rule.ini` in the same directory, and registered
-as `global` in `rules.ini` of the rules project. The automatic scan
-rules are in `global-cr-scoring-rule.tsv` in the same directory:
-
-```ini
-[rule]
-standard="global-cr-scoring-rule.md"
-scan="global-cr-scoring-rule.tsv"
-role="global"
-```
-
-When a PR also changes framework files, the deductions for global files are
-merged into the framework report of the project they belong to, under the same
-A to F dimensions. When a PR changes only global files, this standard produces a
-report on its own. Workflow rules such as the scoring scope, deductions
-requiring evidence and upstream factors are handled by the scoring workflow and
-are not covered in this document.
-
 ## Global rules
 
 The following rules apply to every file of every report, including the files
@@ -65,14 +46,23 @@ framework standard wins.
 - No deduction for pure formatting: when no static analysis report is
   provided, pure formatting issues (indentation, whitespace, import order) are
   not deducted, except for GL-F9.
+- Judging upstream factors:
+  - Judge against the spec and process versions in effect when development
+    started. When the implementation does not follow a spec, interface or
+    process change that took effect after development started, record a
+    suspected ownership change (spec, interface or process change, by what
+    changed), not a deduction of a check item.
+  - For 5 working days after a process change, not following the new process
+    is also a suspected ownership change (process change).
+  - A change communicated only verbally, without written confirmation, does
+    not count; the original version still applies.
+  - When it cannot be determined whether the problem comes from the SD spec or
+    the third-party system (for example, the vendor spec version at the time is
+    unknown), classify it as a suspected third-party issue.
 
 ## Dimensions
 
-All standards share the following six dimensions. The points and the grades
-always come from `defaults.ini` of the rules project; the severity scale also
-comes from `defaults.ini` and can be overridden in the `rule.ini` in the same
-directory. The first letter after `GL-` in a check code indicates its
-dimension.
+The first letter after `GL-` in a check code indicates its dimension.
 
 | Code | Dimension | Focus |
 | --- | --- | --- |
@@ -93,7 +83,7 @@ full-width `｜`:
   `- code｜content｜default severity｜adjustable to｜condition`
 
 The severity may be adjusted only when the stated condition holds. Any check
-item may be lowered to `Nit`.
+item may be lowered to the lowest severity.
 
 ### A. Correctness
 
@@ -218,12 +208,16 @@ item may be lowered to `Nit`.
 
 ## Confirmations
 
-At the start, the scoring workflow asks about the items listed here together
-with any missing documents. Items that the diff or documents already answer are
-not asked again.
+<!--
 Format: `- related codes｜what to confirm`, with multiple codes separated by
-half-width commas.
+half-width commas. For something about the whole standard rather than one
+check item, write `-` as the code.
+-->
 
+- -｜Whether a static analysis report is available (for example Checkstyle,
+  SonarQube, ShellCheck, hadolint, markdownlint or actionlint); used by the
+  global rules "No double counting with static analysis" and "No deduction for
+  pure formatting"
 - GL-A4,GL-B4｜Whether the modified CI/CD or deployment pipeline deploys to
   production and whether it can access production secrets (asked only when the
   diff modifies CI/CD or deployment configs)

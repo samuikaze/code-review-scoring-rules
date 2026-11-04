@@ -25,7 +25,7 @@ Updating a rule requires no change to the workflow itself.
 ```text
 code-review-scoring-rules/
   rules.ini                              Registered rules: folder, enable
-  defaults.ini                           Default points, scale and grades
+  defaults.ini                           Default points, scale, grades and excluded files
   springboot3-rule/
     zh-tw/
       rule.ini                           Rule settings: document, scan rules, applies
@@ -72,19 +72,13 @@ of a rule is a rule folder of its own, written in that language, and holds:
 
 ## Settings
 
-All settings files are INI files; values are in double quotes, and lines
-starting with `;` or `#` are comments.
+The formats of the settings files are described in code-review-scoring;
+this section only says what each file here is for.
 
-- **`rules.ini`**: registers the rules, one section per rule. The section
-  name is the rule name and must equal `name` in the front matter of its
-  standard document. Both keys are required:
-  - `path`: the rule folder (the folder of its `rule.ini`), as a full path or
-    relative to the folder of `rules.ini`. For the rules of this project it
-    also picks the language: `zh-tw` or `en` (see
-    [Language of rule files](#language-of-rule-files)).
-  - `enable`: `"true"` or `"false"`. Disabled rules are not used for scoring,
-    but `standard lint` still checks them. At most one global rule
-    (`role="global"`) can be enabled.
+- **`rules.ini`**: registers the rules here, one section per rule, with the
+  rule folder (`path`) and whether it is used (`enable`). For the rules of
+  this project, `path` also picks the language: `zh-tw` or `en` (see
+  [Language of rule files](#language-of-rule-files)).
 
   ```ini
   [springboot-3]
@@ -92,20 +86,16 @@ starting with `;` or `#` are comments.
   enable="true"
   ```
 
-- **`defaults.ini`**: `[scoring]`, `[points]`, `[severity:CODE]` and
-  `[grade:CODE]`, used by every rule whose `rule.ini` does not set them. A
-  group in `rule.ini` replaces the whole group of `defaults.ini`: any
-  `[severity:*]` section replaces the whole scale, any `[grade:*]` section
-  replaces all grades.
+- **`defaults.ini`**: the points, deduction merging, severity scale and
+  grades of every rule that does not set its own, and `[exclude]`, the files
+  no rule scores (build output, lock files, binary files and generated code).
+  See
+  [Adjusting points and severities](https://github.com/samuikaze/code-review-scoring#adjusting-points-and-severities)
+  and [Files that are not scored](https://github.com/samuikaze/code-review-scoring#files-that-are-not-scored).
 - **`rule.ini`**: see the rule settings template of code-review-scoring
   ([English](https://github.com/samuikaze/code-review-scoring/blob/main/templates/en/rule-template.ini),
   [Traditional Chinese](https://github.com/samuikaze/code-review-scoring/blob/main/templates/zh-tw/rule-template.ini))
   for every section and key.
-
-The default severity scale uses the classic SonarQube severities Critical,
-Major and Minor for problems that must be fixed, and Nit from the Google code
-review guide for small style issues. The default grades are A (95), B (85),
-C (70), D (60) and F (0); a Critical deduction caps the grade at B.
 
 Override the scale of a rule only when there is a clear reason, and write the
 reason in its standard document. Severity and grade codes stay as they are in
@@ -134,11 +124,11 @@ enable="true"
 
 When writing rule files in another language, note that:
 
-- The section and dimension names parsed by the scripts are currently
-  recognized only in Traditional Chinese or English, for example `面向` or
-  `Dimensions`, `檢查項` or `Check items`, `事先確認事項` or `Confirmations`,
-  and `正確性` or `Correctness`. Everything else (check item descriptions,
-  special rules, judgment hints and so on) can be in any language.
+- Keep the section headings and dimension names of the templates of
+  code-review-scoring (see
+  [Scoring standards](https://github.com/samuikaze/code-review-scoring#scoring-standards)). Everything else (check item
+  descriptions, special rules, judgment hints and so on) can be in any
+  language.
 - Check codes, severity codes (by default `Critical`, `Major`, `Minor` and
   `Nit`) and the full-width separator `｜` stay as they are and are not
   translated.
@@ -188,10 +178,9 @@ Neither way commits: review and commit the changes in this project yourself.
 
 ## Notes
 
-- Do not modify the rules while a scoring run is in progress. The workflow
-  records the sha256 of each standard document, scan rule file, `rule.ini`
-  and `defaults.ini` in step 1 and refuses to continue if they change
-  afterwards.
+- Do not modify the rules while a scoring run is in progress; see the
+  [notices](https://github.com/samuikaze/code-review-scoring/blob/main/docs/en/notices.md#scoring-standards) of
+  code-review-scoring.
 - The `# source:` line at the top of a scan rule file records the version and
   sha256 of its source standard document. After modifying a standard document,
   regenerate or review its scan rule file.

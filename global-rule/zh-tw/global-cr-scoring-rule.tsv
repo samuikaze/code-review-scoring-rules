@@ -1,4 +1,4 @@
-# source: global-cr-scoring-rule.md v0.4 sha256:7c8a3a7831edf15f18785f684463f1f444dc8c87dbfb91bf143d25a7492c9039
+# source: global-cr-scoring-rule.md v0.5 sha256:e59df30f8adade65c2a8c6e385dfc514687c9af3ddb9c29add70fe982314e339
 # Scan rules of the global standard (global-cr-scoring-rule.md), referenced by scan= in rule.ini.
 # prepare-diff lists the hits as CANDIDATES only; confirm each against the file before deducting.
 # Format: see references/scan-format.md of the code-review-scoring-standard skill. Fields are TAB-separated.

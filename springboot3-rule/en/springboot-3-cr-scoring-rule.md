@@ -2,7 +2,7 @@
 # Standard ID: lowercase letters, digits and - only; must match the section name in rules.ini of the rules project
 name: springboot-3
 # Standard version, recorded in the scoring report
-version: v0.8
+version: v0.9
 ---
 
 # Spring Boot 3 PR Code Quality Scoring Rules
@@ -12,28 +12,9 @@ version: v0.8
 
 For scoring the code quality of PRs in Java/Spring Boot 3 projects.
 
-This document is set up as a scoring rule of code-review-scoring by the
-`rule.ini` in the same directory, and registered as `springboot-3` in
-`rules.ini` of the rules project. The automatic scan rules are in
-`springboot-3-cr-scoring-rule.tsv` in the same directory:
-
-```ini
-[rule]
-standard="springboot-3-cr-scoring-rule.md"
-scan="springboot-3-cr-scoring-rule.tsv"
-applies="*.java, *.kt, *.sql, *.xml, *.yml, *.yaml, *.properties, *.gradle, *.kts"
-```
-
-Workflow rules such as the scoring scope, deductions requiring evidence and
-upstream factors are handled by the scoring workflow and are not covered in this
-document.
-
 ## Dimensions
 
-All standards share the following six dimensions. The points, the severity
-scale and the grades come from `defaults.ini` of the rules project and can be
-overridden in the `rule.ini` in the same directory. The first letter of a check
-code indicates its dimension.
+The first letter of a check code indicates its dimension.
 
 | Code | Dimension | Focus |
 | --- | --- | --- |
@@ -54,7 +35,7 @@ full-width `｜`:
   `- code｜content｜default severity｜adjustable to｜condition`
 
 The severity may be adjusted only when the stated condition holds. Any check
-item may be lowered to `Nit`.
+item may be lowered to the lowest severity.
 
 ### A. Correctness
 
@@ -178,9 +159,8 @@ item may be lowered to `Nit`.
 
 ## Confirmations
 
-At the start, the scoring workflow asks about the items listed here together
-with any missing documents. Items that the diff or documents already answer are
-not asked again.
+<!-- Format: `- related codes｜what to confirm`, with multiple codes separated
+by half-width commas. -->
 
 - A7｜Whether the feature involves cross-time-zone business (asked only when the
   diff involves time handling)
