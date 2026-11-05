@@ -1,5 +1,5 @@
 # Scan rules of the springboot-3 standard (springboot-3-cr-scoring-rule.md), referenced by scan= in rule.ini.
-# source: springboot-3-cr-scoring-rule.md v0.8 sha256:c75663936e11127761857bb3ebe106717c06ba8390ac13d41ffd3da354b11872
+# source: springboot-3-cr-scoring-rule.md v0.9 sha256:9506626d803d3e9ca987172b5b0bfbf7979d0de6be775e017347f8fff7e2cb1d
 # prepare-diff lists the hits as CANDIDATES only; confirm each against the code before deducting.
 # Format: see references/scan-format.md of the code-review-scoring-standard skill. Fields are TAB-separated.
 

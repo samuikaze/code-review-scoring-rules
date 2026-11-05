@@ -2,7 +2,7 @@
 # 標準代號：只能使用英文小寫、數字與 -，須與規則專案 rules.ini 的區段名稱一致
 name: springboot-3
 # 標準版本，會記錄在評分報告中
-version: v0.8
+version: v0.9
 ---
 
 # Spring Boot 3 PR 程式碼品質評分規則
@@ -12,23 +12,9 @@ version: v0.8
 
 適用於 Java／Spring Boot 3 專案的 PR 程式碼品質評分。
 
-本文件由同目錄的 `rule.ini` 設定為 code-review-scoring 的評分規則，
-並在規則專案的 `rules.ini` 登錄為 `springboot-3`；
-自動掃描規則在同目錄的 `springboot-3-cr-scoring-rule.tsv`：
-
-```ini
-[rule]
-standard="springboot-3-cr-scoring-rule.md"
-scan="springboot-3-cr-scoring-rule.tsv"
-applies="*.java, *.kt, *.sql, *.xml, *.yml, *.yaml, *.properties, *.gradle, *.kts"
-```
-
-評分範圍、需要證據才能扣分、上游因素等共通規定由評分流程處理，不在本文件中。
-
 ## 面向
 
-所有標準共用以下六個面向。配分、嚴重度分級與等級使用規則專案 `defaults.ini`
-的設定，可在同目錄的 `rule.ini` 覆寫。檢查代碼的第一個字母代表所屬面向。
+檢查代碼的第一個字母代表所屬面向。
 
 | 代碼 | 面向 | 衡量重點 |
 | --- | --- | --- |
@@ -46,7 +32,7 @@ applies="*.java, *.kt, *.sql, *.xml, *.yml, *.yaml, *.properties, *.gradle, *.kt
 - 不可調整嚴重度：`- 代碼｜內容｜預設嚴重度`
 - 可調整嚴重度：`- 代碼｜內容｜預設嚴重度｜可調整為｜調整條件`
 
-只有寫明的條件成立時才可以調整嚴重度。任何檢查項都可以降為 `Nit`。
+只有寫明的條件成立時才可以調整嚴重度。任何檢查項都可以降為最低級。
 
 ### A. 正確性
 
@@ -144,8 +130,7 @@ applies="*.java, *.kt, *.sql, *.xml, *.yml, *.yaml, *.properties, *.gradle, *.kt
 
 ## 事先確認事項
 
-評分流程會在開始時，把這裡列出的事項與缺少的文件一起詢問。
-diff 或文件已經能確認的事項不會再問。
+<!-- 格式：`- 相關代碼｜要確認的事`，多個代碼以半形逗號分隔。 -->
 
 - A7｜功能是否涉及跨時區業務（只有 diff 涉及時間處理時才問）
 - E2｜新增查詢的資料表是否會持續成長，以及大約的資料筆數
