@@ -1,19 +1,7 @@
 # Scan rules of the springboot-3 standard (springboot-3-cr-scoring-rule.md), referenced by scan= in rule.ini.
-# source: springboot-3-cr-scoring-rule.md v0.7 sha256:6d3ab07dd10176a98b61c3a1b9bea4e25f38833c2399f011edce67cdce97ae68
+# source: springboot-3-cr-scoring-rule.md v0.9 sha256:9506626d803d3e9ca987172b5b0bfbf7979d0de6be775e017347f8fff7e2cb1d
 # prepare-diff lists the hits as CANDIDATES only; confirm each against the code before deducting.
-# Regexes must use the subset shared by POSIX ERE and .NET (no \b, \s, \d, lookaround). Fields are TAB-separated.
-#
-# @scope  name  within  path-regex
-#   Defines a file scope: files whose path matches path-regex and that are in scope "within" (- = no condition,
-#   !name = not in that scope). The built-in scope "any" covers every reviewed file. The summary of prepared.txt
-#   counts the scopes named main, test and migration when they are defined.
-# @pr  id  condition  hint
-#   PR-level hint: condition is a comma-separated list of has:<scope> (the PR adds lines to a file in the scope),
-#   no:<scope> (the PR touches no file in the scope) and modified:<scope> (the PR modifies, deletes or renames an
-#   existing file in the scope; the hint lists those files); all must hold.
-# id  scope  flags  regex  prev-regex  exclude-regex  hint
-#   Line rule. flags: i=case-insensitive  c=also match comment lines  -=none. prev-regex: the previous non-blank
-#   new-side line must match (- = none). exclude-regex is matched against "previous line + current line".
+# Format: see references/scan-format.md of the code-review-scoring-standard skill. Fields are TAB-separated.
 
 # File scopes
 @scope	test	-	(^|/)src/test/|(Test|Tests|IT)\.(java|kt)$
@@ -26,11 +14,11 @@
 
 # PR-level hints
 @pr	C1	has:main,no:test	main code changed but the PR touches no test file (meets the C1 Critical condition if the change is business logic)
-@pr	G6	modified:migration	existing migration file modified
+@pr	F11	modified:migration	existing migration file modified
 
 # Line rules
-API	main	-	@(Get|Post|Put|Delete|Patch|Request)Mapping	-	-	Added/changed API endpoint: check B3 auth/ownership, B4 @Valid, G4 OpenAPI annotations
-SPRINGDOC	any	i	springdoc|io\.swagger\.v3|@Operation\(	-	-	springdoc visible in diff, so G4 applies
+API	main	-	@(Get|Post|Put|Delete|Patch|Request)Mapping	-	-	Added/changed API endpoint: check B3 auth/ownership, B4 @Valid, F9 OpenAPI annotations
+SPRINGDOC	any	i	springdoc|io\.swagger\.v3|@Operation\(	-	-	springdoc visible in diff, so F9 applies
 A1	java	-	\)\.get\(\)|Optional<.*>.*\.get\(\)	-	-	possible Optional.get() without check
 A2	java	i	(^|[^a-z0-9_])(double|float)[ \t]+[a-z0-9_]*(amount|price|total|fee|balance|cost|money|tax|interest)	-	-	money-like variable uses double/float
 A3	main	-	^[ \t]*private[ \t][^=;]*\(	@Transactional	-	@Transactional on a private method
@@ -67,6 +55,6 @@ E6	java	-	FetchType\.EAGER	-	-	FetchType.EAGER; check necessity
 F3	main	-	(==|!=|<=|>=|<|>|\*|/|%)[ \t]*-?[0-9][0-9]+|[^A-Za-z0-9_."][0-9][0-9]+[ \t]*(==|!=|<=|>=|<|>|\*|/|%)	-	static final|^[ \t]*@|//	possible magic number
 F3	main	-	\.equals\([ \t]*"|"[^"]+"\.equals\(	-	static final	possible meaningful string literal
 F5	java	c	System\.(out|err)\.print|^[ \t]*//.*(;|\{|\})[ \t]*$	-	-	System.out or commented-out code
-G2	main	-	@Value\(|"https?://[^"]+"	-	-	@Value or hard-coded URL; check @ConfigurationProperties
-G3	java	-	(log|logger|LOG|LOGGER)\.(trace|debug|info|warn|error)\([ \t]*"[^"]*"[ \t]*\+|(log|logger|LOG|LOGGER)\.(trace|debug|info|warn|error)\([ \t]*String\.format\(	-	-	log message built by concatenation
-G5	any	ci	(todo|fixme)	-	#[0-9]+|[a-z][a-z0-9]+-[0-9]+	TODO without issue number
+F7	main	-	@Value\(|"https?://[^"]+"	-	-	@Value or hard-coded URL; check @ConfigurationProperties
+F8	java	-	(log|logger|LOG|LOGGER)\.(trace|debug|info|warn|error)\([ \t]*"[^"]*"[ \t]*\+|(log|logger|LOG|LOGGER)\.(trace|debug|info|warn|error)\([ \t]*String\.format\(	-	-	log message built by concatenation
+F10	any	ci	(todo|fixme)	-	#[0-9]+|[a-z][a-z0-9]+-[0-9]+	TODO without issue number

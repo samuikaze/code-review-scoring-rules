@@ -2,7 +2,7 @@
 # Standard ID: lowercase letters, digits and - only; must match the section name in rules.ini of the rules project
 name: springboot-3
 # Standard version, recorded in the scoring report
-version: v0.7
+version: v0.9
 ---
 
 # Spring Boot 3 PR Code Quality Scoring Rules
@@ -12,28 +12,9 @@ version: v0.7
 
 For scoring the code quality of PRs in Java/Spring Boot 3 projects.
 
-This document is set up as a scoring rule of code-review-scoring by the
-`rule.ini` in the same directory, and registered as `springboot-3` in
-`rules.ini` of the rules project. The automatic scan rules are in
-`springboot-3-cr-scoring-rule.tsv` in the same directory:
-
-```ini
-[rule]
-standard="springboot-3-cr-scoring-rule.md"
-scan="springboot-3-cr-scoring-rule.tsv"
-applies="*.java, *.kt, *.sql, *.xml, *.yml, *.yaml, *.properties, *.gradle, *.kts"
-```
-
-General rules such as the scoring scope, deductions requiring evidence and
-upstream factors are handled by the scoring workflow and are not covered in this
-document.
-
 ## Dimensions
 
-All standards share the following seven dimensions. The points, the severity
-scale and the grades come from `defaults.ini` of the rules project and can be
-overridden in the `rule.ini` in the same directory. The first letter of a check
-code indicates its dimension.
+The first letter of a check code indicates its dimension.
 
 | Code | Dimension | Focus |
 | --- | --- | --- |
@@ -42,8 +23,7 @@ code indicates its dimension.
 | C | Test quality | Whether tests are sufficient and meaningful |
 | D | Architecture and design | Layering, responsibilities, Spring conventions |
 | E | Performance and resource use | Query efficiency, resources, remote calls |
-| F | Readability | Whether others can easily understand the code |
-| G | Maintainability | Easy to modify and extend in the future |
+| F | Readability and maintainability | Whether others can easily understand the code; easy to modify and extend in the future |
 
 ## Check items
 
@@ -55,7 +35,7 @@ full-width `｜`:
   `- code｜content｜default severity｜adjustable to｜condition`
 
 The severity may be adjusted only when the stated condition holds. Any check
-item may be lowered to `Nit`.
+item may be lowered to the lowest severity.
 
 ### A. Correctness
 
@@ -154,7 +134,7 @@ item may be lowered to `Nit`.
 - E7｜A column newly used as a query condition has no index created in a
   migration in the same PR, and no explanation is given｜Minor
 
-### F. Readability
+### F. Readability and maintainability
 
 - F1｜A method is longer than 50 lines, or nested more than 3 levels
   deep｜Minor
@@ -166,31 +146,27 @@ item may be lowered to `Nit`.
   way｜Minor
 - F5｜Commented-out code is left behind, or `System.out.println` is
   used｜Minor
-
-### G. Maintainability
-
-- G1｜The same logic appears two or more times in the diff and could be
+- F6｜The same logic appears two or more times in the diff and could be
   extracted for reuse but is not｜Major
-- G2｜Values that belong in a config file are hard-coded, or scattered `@Value`
+- F7｜Values that belong in a config file are hard-coded, or scattered `@Value`
   fields are added instead of `@ConfigurationProperties`｜Minor
-- G3｜Log levels are misused (for example `ERROR` in a normal flow), or logs use
+- F8｜Log levels are misused (for example `ERROR` in a normal flow), or logs use
   string concatenation instead of SLF4J parameterized messages｜Minor
-- G4｜A new public API has no OpenAPI annotations｜Minor
-- G5｜A TODO has no issue number｜Minor
-- G6｜An existing DB migration file (Flyway / Liquibase) is modified, or a
+- F9｜A new public API has no OpenAPI annotations｜Minor
+- F10｜A TODO has no issue number｜Minor
+- F11｜An existing DB migration file (Flyway / Liquibase) is modified, or a
   destructive schema change is made without explanation｜Major
 
 ## Confirmations
 
-At the start, the scoring workflow asks about the items listed here together
-with any missing documents. Items that the diff or documents already answer are
-not asked again.
+<!-- Format: `- related codes｜what to confirm`, with multiple codes separated
+by half-width commas. -->
 
 - A7｜Whether the feature involves cross-time-zone business (asked only when the
   diff involves time handling)
 - E2｜Whether the tables of the new queries keep growing, and the approximate
   number of rows (asked only when the diff involves queries)
-- G4｜Whether the project uses springdoc
+- F9｜Whether the project uses springdoc
 - B9｜Whether vulnerability scan results for the dependencies are available
 
 ## Special rules
@@ -202,23 +178,20 @@ not asked again.
 - C1: Raised to Critical only when the PR changes business logic but does not
   change any test file at all; when there are tests that do not cover the
   logic, it stays Major.
-- G4: Scored only when the diff or existing code shows that the project uses
+- F9: Scored only when the diff or existing code shows that the project uses
   springdoc; otherwise recorded as not applicable.
-- Third-party workaround exemption: code written to work around an issue in a
-  third-party core system is not deducted for check items in dimensions F and G
-  if a comment explains why **and** includes the vendor's issue ticket number.
-  If either is missing, deduct as usual.
 
 ## Judgment hints
 
 - E2: Small config tables stay Minor; large or continuously growing tables such
   as order tables are raised to Major. When the data volume cannot be seen from
   the diff, ask as described in "Confirmations".
-- Static analysis reports usually come from Checkstyle, SpotBugs or SonarQube;
-  issues already listed in a report are not deducted again.
+- Static analysis reports usually come from Checkstyle, SpotBugs or SonarQube
+  (whether their issues are deducted is decided by the global rules of the
+  global standard).
 - For each new or modified API endpoint, check B3 (authentication,
   authorization, resource owner) and B4.
-- A6, A8, B3, C2, D3, E3, F2, F4 and G1 require reading the code in context, do
+- A6, A8, B3, C2, D3, E3, F2, F4 and F6 require reading the code in context, do
   not appear in the automatic scan candidates, and must be checked manually.
 - B9, E7 and F1 have no automatic scan rules either and must also be checked
   manually.
